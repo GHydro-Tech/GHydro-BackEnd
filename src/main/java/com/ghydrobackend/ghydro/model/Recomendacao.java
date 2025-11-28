@@ -6,7 +6,7 @@ import com.ghydrobackend.ghydro.model.enums.StatusRecomendacao;
 import com.ghydrobackend.ghydro.model.enums.TipoAcao;
 
 public class Recomendacao {
-    private String id;
+    private Long id;
     private String plantioId;
     private Timestamp dataGeracao;
     private TipoAcao tipoAcao;
@@ -16,4 +16,7 @@ public class Recomendacao {
     private String observacoes;
     private String agenteResponsavel;
     private StatusRecomendacao status;
+    private Timestamp dataConclusao;
+    // Ele gera uma execução de manejo associada, mas pode gerar ou não, o que faz esse atributo não existir sempre, então pode ser nulo
+    private Long execucaoManejoId;
 }
