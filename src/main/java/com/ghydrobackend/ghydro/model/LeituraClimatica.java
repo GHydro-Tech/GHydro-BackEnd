@@ -3,8 +3,8 @@ package com.ghydrobackend.ghydro.model;
 import java.security.Timestamp;
 
 public class LeituraClimatica {
-    private String id;
-    private String estacaoId;
+    private Long id;
+    private Long estacaoId;
     private Timestamp dataHora;
     private Double temperaturaMaxima;
     private Double temperaturaMinima;

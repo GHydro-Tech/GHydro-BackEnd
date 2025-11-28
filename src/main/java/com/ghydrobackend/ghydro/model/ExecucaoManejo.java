@@ -5,8 +5,9 @@ import java.security.Timestamp;
 import com.ghydrobackend.ghydro.model.enums.Origem;
 
 public class ExecucaoManejo {
-    private String id;
-    private String plantio_id;
+    private Long id;
+    private Long plantioId;
+    private Long recomendacaoId;
     private Timestamp inicio;
     private Timestamp fim;
     private Double volumeAguaAplicado;
