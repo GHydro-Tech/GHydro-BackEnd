@@ -3,7 +3,7 @@ package com.ghydrobackend.ghydro.model;
 import com.ghydrobackend.ghydro.model.enums.TipoDispositivo;
 
 public class DispositivoIrrigacao {
-    private Double id;
+    private Long id;
     private String nome;
     private TipoDispositivo tipoDispositivo;
     private Float eficienciaIrrigacao;

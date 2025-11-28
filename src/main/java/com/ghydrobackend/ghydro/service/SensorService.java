@@ -1,7 +1,6 @@
 package com.ghydrobackend.ghydro.service;
 
 import com.ghydrobackend.ghydro.model.Sensor;
-import com.ghydrobackend.ghydro.model.Setor;
 import com.ghydrobackend.ghydro.repository.SensorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

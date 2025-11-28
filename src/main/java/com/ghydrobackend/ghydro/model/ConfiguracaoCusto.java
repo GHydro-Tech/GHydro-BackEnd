@@ -9,4 +9,6 @@ public class ConfiguracaoCusto {
     private Double custoM3Agua;
     private Double custoKWh;
     private Moeda moeda;
+
+    
 }

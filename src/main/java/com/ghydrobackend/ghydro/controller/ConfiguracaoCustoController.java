@@ -35,7 +35,7 @@ public class ConfiguracaoCustoController {
     }
 
     @PutMapping
-    public ConfiguracaoCustoService atualizarConfiguracaoCustoService(@RequestBody ConfiguracaoCustoService configuracaoCustoService){
+    public ConfiguracaoCusto atualizarConfiguracaoCusto(@RequestBody ConfiguracaoCusto configuracaoCusto){
         return configuracaoCustoService.atualizarConfiguracaoCusto(configuracaoCusto);
     }
 
