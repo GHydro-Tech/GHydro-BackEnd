@@ -1,7 +1,6 @@
 package com.ghydrobackend.ghydro.controller;
 
 import com.ghydrobackend.ghydro.model.Propriedade;
-import com.ghydrobackend.ghydro.model.Proprietario;
 import com.ghydrobackend.ghydro.service.PropriedadeService;
 
 import java.util.List;

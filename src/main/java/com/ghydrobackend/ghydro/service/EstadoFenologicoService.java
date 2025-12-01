@@ -1,6 +1,7 @@
 package com.ghydrobackend.ghydro.service;
 
 import com.ghydrobackend.ghydro.model.EstadoFenologico;
+import com.ghydrobackend.ghydro.repository.EstadoFenologicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
