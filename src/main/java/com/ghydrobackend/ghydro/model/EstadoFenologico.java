@@ -34,7 +34,7 @@ public class EstadoFenologico {
     @Column(name ="descricaoFase")
     private String descricaoFase;
 
-    @Column(name ="descricaoFase")
+    @Column(name ="duracaoDias")
     private Integer duracaoDias;
 
     @Column(name ="kCFase")
