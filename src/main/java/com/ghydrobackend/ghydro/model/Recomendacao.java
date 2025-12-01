@@ -6,12 +6,24 @@ import com.ghydrobackend.ghydro.model.enums.StatusRecomendacao;
 import com.ghydrobackend.ghydro.model.enums.TipoAcao;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "recomendacao")
 public class Recomendacao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
