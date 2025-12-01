@@ -15,7 +15,7 @@ public class ConfiguracaoCusto {
     private Long id;
 
     // Relacionamento com Propriedade
-    private Double propriedadeId;
+    private Long propriedadeId;
 
     @Column(name ="custoM3Agua")
     private Double custoM3Agua;
