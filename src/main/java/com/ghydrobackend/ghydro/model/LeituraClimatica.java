@@ -21,7 +21,7 @@ import lombok.Setter;
 @Table(name = "leituraClimatica")
 public class LeituraClimatica {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private Long estacaoId;

@@ -25,7 +25,7 @@ import lombok.Setter;
 @Table(name = "leituraSensor")
 public class LeituraSensor {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private Long sensorId;

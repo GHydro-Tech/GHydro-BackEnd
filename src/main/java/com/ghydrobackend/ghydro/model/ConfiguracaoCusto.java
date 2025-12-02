@@ -23,7 +23,7 @@ import lombok.Setter;
 @Table(name = "configuracaoCusto")
 public class ConfiguracaoCusto {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     // Relacionamento com Propriedade
