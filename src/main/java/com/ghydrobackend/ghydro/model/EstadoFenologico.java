@@ -19,7 +19,7 @@ import lombok.Setter;
 @Table(name = "estadoFenologico")
 public class EstadoFenologico {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     // ID da cultura associada ao estado fenológico

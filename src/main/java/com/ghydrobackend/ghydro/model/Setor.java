@@ -21,7 +21,7 @@ import lombok.Setter;
 @Table(name = "setor")
 public class Setor {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name ="nome")
