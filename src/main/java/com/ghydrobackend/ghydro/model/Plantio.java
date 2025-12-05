@@ -1,9 +1,11 @@
 package com.ghydrobackend.ghydro.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ghydrobackend.ghydro.model.enums.StatusPlantio;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +13,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,7 +33,9 @@ public class Plantio {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Long culturaId;
+    @ManyToOne
+    @JoinColumn(name = "cultura_id")
+    private Cultura cultura;
 
     @Column(name ="dataPlantio")
     private String dataPlantio;
@@ -40,6 +47,10 @@ public class Plantio {
     @Column
     private StatusPlantio statusPlantio;
 
-    private List<Long> manejosIds;
-    private List<Long> setoresIds;
+    @OneToMany(mappedBy = "plantio", cascade = CascadeType.ALL)
+    private List<ExecucaoManejo> manejos = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "setor_id")
+    private Setor setor;
 }

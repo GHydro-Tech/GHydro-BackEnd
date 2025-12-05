@@ -12,6 +12,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,10 +29,12 @@ import lombok.Setter;
 @Table(name = "recomendacao")
 public class Recomendacao {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long plantioId;
+    @ManyToOne
+    @JoinColumn(name = "plantio_id")
+    private Plantio plantio;
 
     @Column(name ="dataGeracao")
     private Timestamp dataGeracao;
@@ -58,6 +63,6 @@ public class Recomendacao {
     @Column(name ="dataConclusao")
     private Timestamp dataConclusao;
     
-    // Ele gera uma execução de manejo associada, mas pode gerar ou não, o que faz esse atributo não existir sempre, então pode ser nulo
-    private Long execucaoManejoId;
+    @OneToOne(mappedBy = "recomendacao")
+    private ExecucaoManejo execucao;
 }

@@ -2,11 +2,14 @@ package com.ghydrobackend.ghydro.model;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,6 +36,7 @@ public class Cultura {
     @Column(name ="variedade")
     private String variedade;
     
-    // Lista de estados fenotípicos associados à cultura
-    private List<Long> estadosFenoticos;
+    @OneToMany(mappedBy = "cultura", cascade = CascadeType.ALL)
+    @OrderBy("ordemSequencia ASC")
+    private List<EstadoFenologico> estadosFenoticos;
 }

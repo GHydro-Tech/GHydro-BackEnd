@@ -1,6 +1,6 @@
 package com.ghydrobackend.ghydro.model;
 
-import java.security.Timestamp;
+import java.time.LocalDateTime;
 
 import com.ghydrobackend.ghydro.model.enums.Origem;
 
@@ -11,6 +11,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,15 +31,19 @@ public class ExecucaoManejo {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Long plantioId;
+    @ManyToOne
+    @JoinColumn(name = "plantio_id")
+    private Plantio plantio;
 
-    private Long recomendacaoId;
+    @OneToOne
+    @JoinColumn(name = "recomendacao_id", nullable = true)
+    private Recomendacao recomendacao;
     
     @Column(name ="inicio")
-    private Timestamp inicio;
+    private LocalDateTime inicio;
 
     @Column(name ="fim")
-    private Timestamp fim;
+    private LocalDateTime fim;
 
     @Column(name ="volumeAguaAplicado")
     private Double volumeAguaAplicado;

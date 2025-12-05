@@ -1,9 +1,11 @@
 package com.ghydrobackend.ghydro.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ghydrobackend.ghydro.model.enums.TipoEstacao;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +13,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -47,11 +51,9 @@ public class EstacaoMetereologica {
     @Column(name ="apiKey")
     private String apiKey;
 
-    //Representa as leituras climaticas coletadas pela estacao
-    private List<Long> leiturasClimaticas;
+    @OneToMany(mappedBy = "estacaoMetereologica", cascade = CascadeType.ALL)
+    private List<LeituraClimatica> leiturasClimaticas = new ArrayList<>();
 
-    //Representa as propriedades as quais a estacao esta associada
-    //Relacionamento precisa ser revisto
-    //Não faz sentido uma estacao ter varias propriedades
-    private List<Long> propriedades;
+    @ManyToMany(mappedBy = "estacoes")
+    private List<Propriedade> propriedades = new ArrayList<>();
 }

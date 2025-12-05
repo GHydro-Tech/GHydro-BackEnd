@@ -9,6 +9,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,13 +28,14 @@ public class ConfiguracaoCusto {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    // Relacionamento com Propriedade
-    private Long propriedadeId;
+    @OneToOne
+    @JoinColumn(name = "propriedade_id", unique = true)
+    private Propriedade propriedade;
 
-    @Column(name ="custoM3Agua")
+    @Column(name = "custoM3Agua")
     private Double custoM3Agua;
 
-    @Column(name ="custoKWh")
+    @Column(name = "custoKWh")
     private Double custoKWh;
 
     @Enumerated(EnumType.STRING)
