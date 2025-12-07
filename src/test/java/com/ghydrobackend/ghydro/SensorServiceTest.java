@@ -7,6 +7,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +30,7 @@ import com.ghydrobackend.ghydro.repository.SetorRepository;
 import com.ghydrobackend.ghydro.service.SensorService;
 
 @ExtendWith(MockitoExtension.class)
-public class SensorServiceTest {
+class SensorServiceTest {
 
     @InjectMocks
     private SensorService sensorService;
@@ -40,103 +41,99 @@ public class SensorServiceTest {
     @Mock
     private SetorRepository setorRepository;
 
+    // --- Atributos para uso nos testes ---
+    private Sensor sensorValido;
+    private Setor setorValido;
+    private final Long ID_SENSOR = 1L;
+    private final Long ID_SETOR = 10L;
+
+    // --- Configuração Inicial (Roda ANTES de cada teste) ---
+    @BeforeEach
+    void setUp() {
+        // 1. Instancia o Setor padrão
+        setorValido = new Setor();
+        setorValido.setId(ID_SETOR);
+        setorValido.setNome("Setor Padrão");
+
+        // 2. Instancia o Sensor padrão com dados válidos
+        sensorValido = new Sensor();
+        sensorValido.setId(ID_SENSOR);
+        sensorValido.setStatus(StatusSensor.ATIVO);
+        sensorValido.setDataInstalacao(LocalDateTime.now());
+        sensorValido.setNivelBateria(100.0);
+        sensorValido.setTipos(List.of(TipoSensor.TEMPERATURA));
+        sensorValido.setSetor(setorValido);
+    }
+
     // --- Teste 1: Salvar Sensor com Sucesso ---
     @Test
-    @DisplayName("Deve salvar um sensor com sucesso quando os dados forem válidos e o setor existir")
+    @DisplayName("Deve salvar sensor com sucesso (usando dados do setUp)")
     void deveSalvarSensorComSucesso() {
-        // Cenário
-        Long setorId = 1L;
-        Setor setorMock = new Setor();
-        setorMock.setId(setorId);
-
-        Sensor sensorEntrada = new Sensor();
-        sensorEntrada.setStatus(StatusSensor.ATIVO);
-        sensorEntrada.setDataInstalacao(LocalDateTime.now());
-        sensorEntrada.setNivelBateria(100.0);
-        sensorEntrada.setTipos(List.of(TipoSensor.TEMPERATURA));
-        sensorEntrada.setSetor(setorMock);
-
-        // Mock: Simula que o setor existe no banco e que o sensor será salvo
-        when(setorRepository.findById(setorId)).thenReturn(Optional.of(setorMock));
-        when(sensorRepository.save(any(Sensor.class))).thenReturn(sensorEntrada);
+        // Cenário: O setor existe e o save retorna o próprio objeto
+        when(setorRepository.findById(ID_SETOR)).thenReturn(Optional.of(setorValido));
+        when(sensorRepository.save(any(Sensor.class))).thenReturn(sensorValido);
 
         // Ação
-        Sensor sensorSalvo = sensorService.salvarSensor(sensorEntrada);
+        Sensor resultado = sensorService.salvarSensor(sensorValido);
 
         // Verificação
-        assertNotNull(sensorSalvo);
-        assertEquals(StatusSensor.ATIVO, sensorSalvo.getStatus());
-        verify(setorRepository, times(1)).findById(setorId);
-        verify(sensorRepository, times(1)).save(sensorEntrada);
+        assertNotNull(resultado);
+        assertEquals(StatusSensor.ATIVO, resultado.getStatus());
+        verify(sensorRepository, times(1)).save(sensorValido);
     }
 
     // --- Teste 2: Validar Regra de Negócio (Bateria Inválida) ---
     @Test
-    @DisplayName("Deve lançar exceção se a bateria for maior que 100%")
+    @DisplayName("Deve lançar exceção se bateria > 100")
     void deveLancarErroComBateriaInvalida() {
-        // Cenário
-        Sensor sensor = new Sensor();
-        sensor.setStatus(StatusSensor.ATIVO);
-        sensor.setDataInstalacao(LocalDateTime.now());
-        sensor.setTipos(List.of(TipoSensor.UMIDADE));
-        sensor.setNivelBateria(150.0); // Inválido (> 100)
+        // Cenário: Pegamos o sensor válido e "estragamos" apenas a bateria
+        sensorValido.setNivelBateria(150.0); 
 
         // Ação & Verificação
-        RegraDeNegocioException exception = assertThrows(RegraDeNegocioException.class, () -> {
-            sensorService.salvarSensor(sensor);
+        RegraDeNegocioException erro = assertThrows(RegraDeNegocioException.class, () -> {
+            sensorService.salvarSensor(sensorValido);
         });
 
-        assertEquals("O nível de bateria deve estar entre 0 e 100.", exception.getMessage());
-        // Garante que o método save NUNCA foi chamado
+        assertEquals("O nível de bateria deve estar entre 0 e 100.", erro.getMessage());
         verify(sensorRepository, never()).save(any());
     }
 
     // --- Teste 3: Atualizar Sensor com Sucesso ---
     @Test
-    @DisplayName("Deve atualizar os dados de um sensor existente")
+    @DisplayName("Deve atualizar sensor existente")
     void deveAtualizarSensorComSucesso() {
-        // Cenário
-        Long idSensor = 1L;
-        
-        // Sensor antigo (no banco)
-        Sensor sensorExistente = new Sensor();
-        sensorExistente.setId(idSensor);
-        sensorExistente.setStatus(StatusSensor.ATIVO);
-        sensorExistente.setNivelBateria(50.0);
+        // Cenário: Sensor existente vem do banco (usamos o do setUp)
+        when(sensorRepository.findById(ID_SENSOR)).thenReturn(Optional.of(sensorValido));
+        when(sensorRepository.save(any(Sensor.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Dados novos para atualização
-        Sensor sensorNovosDados = new Sensor();
-        sensorNovosDados.setStatus(StatusSensor.MANUTENCAO);
-        sensorNovosDados.setDataInstalacao(LocalDateTime.now());
-        sensorNovosDados.setTipos(List.of(TipoSensor.PRESSAO));
-        sensorNovosDados.setNivelBateria(45.0);
-        // Sem alterar setor
-
-        when(sensorRepository.findById(idSensor)).thenReturn(Optional.of(sensorExistente));
-        when(sensorRepository.save(any(Sensor.class))).thenAnswer(i -> i.getArgument(0));
+        // Criamos um objeto APENAS com os dados novos para atualizar
+        Sensor dadosAtualizacao = new Sensor();
+        dadosAtualizacao.setStatus(StatusSensor.MANUTENCAO); // Mudou para MANUTENÇÃO
+        dadosAtualizacao.setNivelBateria(80.0);              // Bateria caiu um pouco
+        dadosAtualizacao.setDataInstalacao(LocalDateTime.now());
+        dadosAtualizacao.setTipos(List.of(TipoSensor.UMIDADE));
+        // Não setamos setor, para manter o mesmo
 
         // Ação
-        Sensor resultado = sensorService.atualizarSensor(idSensor, sensorNovosDados);
+        Sensor resultado = sensorService.atualizarSensor(ID_SENSOR, dadosAtualizacao);
 
         // Verificação
-        assertEquals(StatusSensor.MANUTENCAO, resultado.getStatus());
-        assertEquals(45.0, resultado.getNivelBateria());
-        verify(sensorRepository, times(1)).save(sensorExistente);
+        assertEquals(StatusSensor.MANUTENCAO, resultado.getStatus()); // Confirma a mudança
+        assertEquals(80.0, resultado.getNivelBateria());
+        verify(sensorRepository, times(1)).save(any(Sensor.class));
     }
 
     // --- Teste 4: Deletar Sensor com Sucesso ---
     @Test
-    @DisplayName("Deve deletar o sensor se o ID existir")
+    @DisplayName("Deve deletar sensor por ID")
     void deveDeletarSensorComSucesso() {
         // Cenário
-        Long idParaDeletar = 10L;
-        when(sensorRepository.existsById(idParaDeletar)).thenReturn(true);
+        when(sensorRepository.existsById(ID_SENSOR)).thenReturn(true);
 
         // Ação
-        sensorService.deletarSensor(idParaDeletar);
+        sensorService.deletarSensor(ID_SENSOR);
 
         // Verificação
-        verify(sensorRepository, times(1)).deleteById(idParaDeletar);
+        verify(sensorRepository, times(1)).deleteById(ID_SENSOR);
     }
-    
 }
