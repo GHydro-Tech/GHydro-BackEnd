@@ -7,4 +7,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ConfiguracaoCustoRepository extends JpaRepository<ConfiguracaoCusto, Long>{
 
+    boolean existsByPropriedadeId(Long propriedadeId);
+
+    boolean existsByPropriedadeIdAndIdNot(Long propriedadeId, Long id);
+
 }

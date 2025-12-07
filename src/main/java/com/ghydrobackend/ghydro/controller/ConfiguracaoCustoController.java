@@ -1,6 +1,7 @@
 package com.ghydrobackend.ghydro.controller;
 
 import com.ghydrobackend.ghydro.model.ConfiguracaoCusto;
+import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.service.ConfiguracaoCustoService;
 
 import java.util.List;
@@ -34,9 +35,10 @@ public class ConfiguracaoCustoController {
         return configuracaoCustoService.listarConfiguracaoCusto();
     }
 
-    @PutMapping
-    public ConfiguracaoCusto atualizarConfiguracaoCusto(@RequestBody ConfiguracaoCusto configuracaoCusto){
-        return configuracaoCustoService.atualizarConfiguracaoCusto(configuracaoCusto);
+    @PutMapping("/{id}")
+    public ConfiguracaoCusto atualizarConfiguracaoCusto(@PathVariable Long id, @RequestBody ConfiguracaoCusto configuracaoCusto) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return configuracaoCustoService.atualizarConfiguracaoCusto(id, configuracaoCusto);
     }
 
     @DeleteMapping("/{id}/")
