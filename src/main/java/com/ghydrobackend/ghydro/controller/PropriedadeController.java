@@ -1,5 +1,6 @@
 package com.ghydrobackend.ghydro.controller;
 
+import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.model.Propriedade;
 import com.ghydrobackend.ghydro.service.PropriedadeService;
 
@@ -34,9 +35,10 @@ public class PropriedadeController {
         return propriedadeService.listarPropriedade();
     }
 
-    @PutMapping
-    public Propriedade atualizarPropriedade(@RequestBody Propriedade propriedade){
-        return propriedadeService.atualizarPropriedade(propriedade);
+    @PutMapping("/{id}")
+    public Propriedade atualizarPropriedade(@PathVariable Long id, @RequestBody Propriedade propriedade) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return propriedadeService.atualizarPropriedade(id, propriedade);
     }
 
     @DeleteMapping("/{id}/")
