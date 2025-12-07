@@ -4,9 +4,11 @@ import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.model.Plantio;
 import com.ghydrobackend.ghydro.model.Setor;
+import com.ghydrobackend.ghydro.model.enums.StatusPlantio;
 import com.ghydrobackend.ghydro.repository.CulturaRepository;
 import com.ghydrobackend.ghydro.repository.PlantioRepository;
 import com.ghydrobackend.ghydro.repository.SetorRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,55 +23,84 @@ public class PlantioService {
     private PlantioRepository plantioRepository;
 
     @Autowired
-    private CulturaRepository culturaRepository; // Para carregar a cultura
+    private CulturaRepository culturaRepository;
 
     @Autowired
-    private SetorRepository setorRepository; // Para carregar o setor
+    private SetorRepository setorRepository;
 
+    // LISTAR
     public List<Plantio> listarPlantio() {
         return plantioRepository.findAll();
     }
 
+    // BUSCAR POR ID
     public Plantio buscarPorId(Long id) {
         return plantioRepository.findById(id)
                 .orElseThrow(() -> new RegraDeNegocioException("Plantio não encontrado com o ID: " + id));
     }
 
+    // SALVAR
     @Transactional
     public Plantio salvarPlantio(Plantio plantio) {
         validarCamposObrigatorios(plantio);
-
-        // 1. Carrega dependências (Cultura e Setor) para não retornar nulo
-        carregarDependencias(plantio);
-
-        // 2. Valida a lógica das datas
         validarDatas(plantio);
+        carregarDependencias(plantio); // evita retornar null no JSON
+
+        // Status inicial obrigatório
+        if (plantio.getStatusPlantio() == null) {
+            plantio.setStatusPlantio(StatusPlantio.PLANEJADO);
+        }
 
         return plantioRepository.save(plantio);
     }
 
+    // ATUALIZAR
     @Transactional
     public Plantio atualizarPlantio(Long id, Plantio plantioAtualizado) {
+
         Plantio plantioExistente = buscarPorId(id);
 
         validarCamposObrigatorios(plantioAtualizado);
         validarDatas(plantioAtualizado);
 
-        // Se mudou a cultura
+        // ------------------------------
+        //  REGRAS DE TRANSIÇÃO DE STATUS
+        // ------------------------------
+
+        StatusPlantio antigo = plantioExistente.getStatusPlantio();
+        StatusPlantio novo = plantioAtualizado.getStatusPlantio();
+
+        // Não permitir retroceder status quando já CONCLUÍDO
+        if (antigo == StatusPlantio.CONCLUIDO && novo != StatusPlantio.CONCLUIDO) {
+            throw new RegraDeNegocioException("Não é possível alterar um plantio que já foi CONCLUÍDO.");
+        }
+
+        // Não permite pular de PLANEJADO direto para CONCLUIDO
+        if (antigo == StatusPlantio.PLANEJADO && novo == StatusPlantio.CONCLUIDO) {
+            throw new RegraDeNegocioException(
+                    "O plantio deve estar EM_ANDAMENTO antes de ser CONCLUÍDO."
+            );
+        }
+
+        // ------------------------------
+        // DEPENDÊNCIAS
+        // ------------------------------
+
         if (plantioAtualizado.getCultura() != null) {
-            Cultura cultura = culturaRepository.findById(plantioAtualizado.getCultura().getId())
+            Cultura c = culturaRepository.findById(plantioAtualizado.getCultura().getId())
                     .orElseThrow(() -> new RegraDeNegocioException("Cultura não encontrada."));
-            plantioExistente.setCultura(cultura);
+            plantioExistente.setCultura(c);
         }
 
-        // Se mudou o setor
         if (plantioAtualizado.getSetor() != null) {
-            Setor setor = setorRepository.findById(plantioAtualizado.getSetor().getId())
+            Setor s = setorRepository.findById(plantioAtualizado.getSetor().getId())
                     .orElseThrow(() -> new RegraDeNegocioException("Setor não encontrado."));
-            plantioExistente.setSetor(setor);
+            plantioExistente.setSetor(s);
         }
 
-        // Atualiza dados simples
+        // ------------------------------
+        // CAMPOS SIMPLES
+        // ------------------------------
         plantioExistente.setDataPlantio(plantioAtualizado.getDataPlantio());
         plantioExistente.setDataColheitaEstimada(plantioAtualizado.getDataColheitaEstimada());
         plantioExistente.setStatusPlantio(plantioAtualizado.getStatusPlantio());
@@ -77,6 +108,7 @@ public class PlantioService {
         return plantioRepository.save(plantioExistente);
     }
 
+    // DELETAR
     public void deletarPlantio(Long id) {
         if (!plantioRepository.existsById(id)) {
             throw new RegraDeNegocioException("Plantio não encontrado para exclusão.");
@@ -84,7 +116,9 @@ public class PlantioService {
         plantioRepository.deleteById(id);
     }
 
-    // --- Métodos Auxiliares ---
+    // -----------------------------------
+    // MÉTODOS AUXILIARES
+    // -----------------------------------
 
     private void validarCamposObrigatorios(Plantio p) {
         if (p.getDataPlantio() == null) {
@@ -93,37 +127,37 @@ public class PlantioService {
         if (p.getStatusPlantio() == null) {
             throw new RegraDeNegocioException("O status do plantio é obrigatório.");
         }
+        if (p.getCultura() == null || p.getCultura().getId() == null) {
+            throw new RegraDeNegocioException("A cultura é obrigatória.");
+        }
+        if (p.getSetor() == null || p.getSetor().getId() == null) {
+            throw new RegraDeNegocioException("O setor é obrigatório.");
+        }
     }
 
     private void validarDatas(Plantio p) {
-        // Se tiver data de colheita estimada, ela deve ser DEPOIS do plantio
-        if (p.getDataColheitaEstimada() != null) {
-            if (p.getDataColheitaEstimada().isBefore(p.getDataPlantio())) {
-                throw new RegraDeNegocioException("A data estimada de colheita não pode ser anterior à data do plantio.");
-            }
+        LocalDate plantio = p.getDataPlantio();
+        LocalDate colheita = p.getDataColheitaEstimada();
 
-            if (p.getDataColheitaEstimada().isEqual(p.getDataPlantio())) {
-                throw new RegraDeNegocioException("A data de colheita não pode ser no mesmo dia do plantio.");
+        if (colheita != null) {
+            if (colheita.isBefore(plantio)) {
+                throw new RegraDeNegocioException("A data estimada de colheita não pode ser antes da data de plantio.");
+            }
+            if (colheita.isEqual(plantio)) {
+                throw new RegraDeNegocioException("A colheita não pode ocorrer no mesmo dia do plantio.");
             }
         }
-
     }
 
     private void carregarDependencias(Plantio p) {
-        // Valida e carrega Cultura
-        if (p.getCultura() == null || p.getCultura().getId() == null) {
-            throw new RegraDeNegocioException("É obrigatório informar a Cultura.");
-        }
+        // Cultura
         Cultura cultura = culturaRepository.findById(p.getCultura().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("A Cultura informada (ID " + p.getCultura().getId() + ") não existe."));
+                .orElseThrow(() -> new RegraDeNegocioException("Cultura informada não existe."));
         p.setCultura(cultura);
 
-        // Valida e carrega Setor
-        if (p.getSetor() == null || p.getSetor().getId() == null) {
-            throw new RegraDeNegocioException("É obrigatório informar o Setor.");
-        }
+        // Setor
         Setor setor = setorRepository.findById(p.getSetor().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("O Setor informado (ID " + p.getSetor().getId() + ") não existe."));
+                .orElseThrow(() -> new RegraDeNegocioException("Setor informado não existe."));
         p.setSetor(setor);
     }
 }
