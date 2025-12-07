@@ -18,7 +18,7 @@ public class DispositivoIrrigacaoService {
     private DispositivoIrrigacaoRepository dispositivoRepository;
 
     @Autowired
-    private SetorRepository setorRepository; // Para carregar o setor completo
+    private SetorRepository setorRepository;
 
     public List<DispositivoIrrigacao> listarDispositivoIrrigacao() {
         return dispositivoRepository.findAll();
@@ -34,10 +34,10 @@ public class DispositivoIrrigacaoService {
         validarCamposObrigatorios(dispositivo);
         validarFisica(dispositivo);
 
-        // Carrega dependência para não retornar nulo
+        // Carrega o setor completo
         carregarSetor(dispositivo);
 
-        // Valida nome duplicado no setor
+        // Valida unicidade de nome no setor
         if (dispositivoRepository.existsByNomeAndSetorId(dispositivo.getNome(), dispositivo.getSetor().getId())) {
             throw new RegraDeNegocioException("Já existe um dispositivo chamado '" + dispositivo.getNome() + "' neste setor.");
         }
@@ -58,14 +58,14 @@ public class DispositivoIrrigacaoService {
             dispositivoExistente.setSetor(dispositivoAtualizado.getSetor());
         }
 
-        // Atualiza dados técnicos
+        // Atualiza campos
         dispositivoExistente.setNome(dispositivoAtualizado.getNome());
         dispositivoExistente.setTipoDispositivo(dispositivoAtualizado.getTipoDispositivo());
         dispositivoExistente.setEficienciaIrrigacao(dispositivoAtualizado.getEficienciaIrrigacao());
         dispositivoExistente.setVazaoNominal(dispositivoAtualizado.getVazaoNominal());
         dispositivoExistente.setPotenciaMotor(dispositivoAtualizado.getPotenciaMotor());
 
-        // Valida duplicidade de nome (considerando o setor atual)
+        // Valida duplicidade de nome na atualização
         boolean nomeJaExiste = dispositivoRepository.existsByNomeAndSetorIdAndIdNot(
                 dispositivoExistente.getNome(),
                 dispositivoExistente.getSetor().getId(),
@@ -115,6 +115,7 @@ public class DispositivoIrrigacaoService {
             throw new RegraDeNegocioException("A potência do motor deve ser maior que zero.");
         }
     }
+
 
     private void carregarSetor(DispositivoIrrigacao d) {
         if (d.getSetor() == null || d.getSetor().getId() == null) {
