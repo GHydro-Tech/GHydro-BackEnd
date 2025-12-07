@@ -34,9 +34,10 @@ public class TipoSoloController {
         return tipoSoloService.listarTipoSolo();
     }
 
-    @PutMapping
-    public TipoSolo atualizarTipoSolo(@RequestBody TipoSolo tipoSolo){
-        return tipoSoloService.atualizarTipoSolo(tipoSolo);
+    @PutMapping("/{id}")
+    public TipoSolo atualizarCultura(@PathVariable Long id, @RequestBody TipoSolo tipoSolo) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return tipoSoloService.atualizarTipoSolo(id, tipoSolo);
     }
 
     @DeleteMapping("/{id}/")

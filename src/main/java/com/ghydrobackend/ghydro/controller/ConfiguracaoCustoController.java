@@ -1,7 +1,6 @@
 package com.ghydrobackend.ghydro.controller;
 
 import com.ghydrobackend.ghydro.model.ConfiguracaoCusto;
-import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.service.ConfiguracaoCustoService;
 
 import java.util.List;
