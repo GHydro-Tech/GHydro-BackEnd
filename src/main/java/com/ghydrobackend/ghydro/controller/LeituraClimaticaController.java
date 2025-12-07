@@ -1,5 +1,6 @@
 package com.ghydrobackend.ghydro.controller;
 
+import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.model.LeituraClimatica;
 import com.ghydrobackend.ghydro.service.LeituraClimaticaService;
 
@@ -34,9 +35,10 @@ public class LeituraClimaticaController {
         return leituraClimaticaService.listarLeituraClimatica();
     }
 
-    @PutMapping
-    public LeituraClimatica atualizarLeituraClimatica(@RequestBody LeituraClimatica leituraClimatica){
-        return leituraClimaticaService.atualizarLeituraClimatica(leituraClimatica);
+    @PutMapping("/{id}")
+    public LeituraClimatica atualizarLeituraClimatica(@PathVariable Long id, @RequestBody LeituraClimatica leituraClimatica) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return leituraClimaticaService.atualizarLeituraClimatica(id, leituraClimatica);
     }
 
     @DeleteMapping("/{id}/")
