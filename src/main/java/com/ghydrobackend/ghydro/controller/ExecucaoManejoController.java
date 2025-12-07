@@ -1,5 +1,6 @@
 package com.ghydrobackend.ghydro.controller;
 
+import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.model.ExecucaoManejo;
 import com.ghydrobackend.ghydro.service.ExecucaoManejoService;
 
@@ -34,9 +35,10 @@ public class ExecucaoManejoController {
         return execucaoManejoService.listarExecucaoManejo();
     }
 
-    @PutMapping
-    public ExecucaoManejo atualizarExecucaoManejo(@RequestBody ExecucaoManejo execucaoManejo){
-        return execucaoManejoService.atualizarExecucaoManejo(execucaoManejo);
+    @PutMapping("/{id}")
+    public ExecucaoManejo atualizarExecucaoManejo(@PathVariable Long id, @RequestBody ExecucaoManejo execucaoManejo) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return execucaoManejoService.atualizarExecucaoManejo(id, execucaoManejo);
     }
 
     @DeleteMapping("/{id}/")
