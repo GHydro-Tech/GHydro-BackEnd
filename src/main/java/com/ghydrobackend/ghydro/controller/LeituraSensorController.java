@@ -1,5 +1,6 @@
 package com.ghydrobackend.ghydro.controller;
 
+import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.model.LeituraSensor;
 import com.ghydrobackend.ghydro.service.LeituraSensorService;
 
@@ -34,9 +35,10 @@ public class LeituraSensorController {
         return leituraSensorService.listarLeituraSensor();
     }
 
-    @PutMapping
-    public LeituraSensor atualizarLeituraSensor(@RequestBody LeituraSensor leituraSensor){
-        return leituraSensorService.atualizarLeituraSensor(leituraSensor);
+    @PutMapping("/{id}")
+    public LeituraSensor atualizarLeituraSensor(@PathVariable Long id, @RequestBody LeituraSensor leituraSensor) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return leituraSensorService.atualizarLeituraSensor(id, leituraSensor);
     }
 
     @DeleteMapping("/{id}/")
