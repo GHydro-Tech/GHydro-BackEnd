@@ -6,5 +6,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PropriedadeRepository extends JpaRepository<Propriedade, Long>{
+
+    boolean existsByNomeAndProprietarioId(String nome, Long proprietarioId);
+
+    boolean existsByNomeAndProprietarioIdAndIdNot(String nome, Long proprietarioId, Long id);
     
 }
