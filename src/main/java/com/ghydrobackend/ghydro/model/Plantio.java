@@ -1,5 +1,6 @@
 package com.ghydrobackend.ghydro.model;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,10 +39,10 @@ public class Plantio {
     private Cultura cultura;
 
     @Column(name ="dataPlantio")
-    private String dataPlantio;
+    private LocalDate dataPlantio;
     
     @Column(name ="dataColheitaEstimada")
-    private String dataColheitaEstimada;
+    private LocalDate dataColheitaEstimada;
 
     @Enumerated(EnumType.STRING)
     @Column

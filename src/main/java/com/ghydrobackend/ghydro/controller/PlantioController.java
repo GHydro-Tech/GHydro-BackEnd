@@ -1,5 +1,6 @@
 package com.ghydrobackend.ghydro.controller;
 
+import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.model.Plantio;
 import com.ghydrobackend.ghydro.service.PlantioService;
 
@@ -34,9 +35,10 @@ public class PlantioController {
         return plantioService.listarPlantio();
     }
 
-    @PutMapping
-    public Plantio atualizarPlantio(@RequestBody Plantio plantio){
-        return plantioService.atualizarPlantio(plantio);
+    @PutMapping("/{id}")
+    public Plantio atualizarPlantio(@PathVariable Long id, @RequestBody Plantio plantio) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return plantioService.atualizarPlantio(id, plantio);
     }
 
     @DeleteMapping("/{id}/")
