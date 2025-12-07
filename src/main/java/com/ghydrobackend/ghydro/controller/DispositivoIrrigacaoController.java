@@ -1,5 +1,6 @@
 package com.ghydrobackend.ghydro.controller;
 
+import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.model.DispositivoIrrigacao;
 import com.ghydrobackend.ghydro.service.DispositivoIrrigacaoService;
 
@@ -34,9 +35,10 @@ public class DispositivoIrrigacaoController {
         return dispositivoIrrigacaoService.listarDispositivoIrrigacao();
     }
 
-    @PutMapping
-    public DispositivoIrrigacao atualizarDispositivoIrrigacao(@RequestBody DispositivoIrrigacao dispositivoIrrigacao){
-        return dispositivoIrrigacaoService.atualizarDispositivoIrrigacao(dispositivoIrrigacao);
+    @PutMapping("/{id}")
+    public DispositivoIrrigacao atualizarDispositivoIrrigacao(@PathVariable Long id, @RequestBody DispositivoIrrigacao dispositivoIrrigacao) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return dispositivoIrrigacaoService.atualizarDispositivoIrrigacao(id, dispositivoIrrigacao);
     }
 
     @DeleteMapping("/{id}/")

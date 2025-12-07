@@ -6,5 +6,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DispositivoIrrigacaoRepository extends JpaRepository<DispositivoIrrigacao, Long>{
+
+    boolean existsByNomeAndSetorId(String nome, Long setorId);
+
+    boolean existsByNomeAndSetorIdAndIdNot(String nome, Long setorId, Long id);
     
 }
