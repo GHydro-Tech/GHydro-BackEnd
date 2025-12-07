@@ -34,10 +34,12 @@ public class EstadoFenologicoController {
         return estadoFenologicoService.listarEstadoFenologico();
     }
 
-    @PutMapping
-    public EstadoFenologico atualizarEstadoFenologico(@RequestBody EstadoFenologico estadoFenologico){
-        return estadoFenologicoService.atualizarEstadoFenologico(estadoFenologico);
+    @PutMapping("/{id}")
+    public EstadoFenologico atualizarEstadoFenologico(@PathVariable Long id, @RequestBody EstadoFenologico estadoFenologico) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return estadoFenologicoService.atualizarEstadoFenologico(id, estadoFenologico);
     }
+
 
     @DeleteMapping("/{id}/")
     public void deletarEstadoFenologico(@PathVariable Long id){
