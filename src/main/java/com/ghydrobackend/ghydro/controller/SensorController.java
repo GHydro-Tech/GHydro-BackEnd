@@ -34,9 +34,10 @@ public class SensorController {
         return sensorService.listarSensor();
     }
 
-    @PutMapping
-    public Sensor atualizarSensor(@RequestBody Sensor sensor){
-        return sensorService.atualizarSensor(sensor);
+    @PutMapping("/{id}")
+    public Sensor atualizarSensor(@PathVariable Long id, @RequestBody Sensor sensor) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return sensorService.atualizarSensor(id, sensor);
     }
 
     @DeleteMapping("/{id}/")
