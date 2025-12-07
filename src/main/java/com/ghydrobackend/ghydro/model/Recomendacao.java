@@ -1,6 +1,6 @@
 package com.ghydrobackend.ghydro.model;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
 
 import com.ghydrobackend.ghydro.model.enums.StatusRecomendacao;
 import com.ghydrobackend.ghydro.model.enums.TipoAcao;
