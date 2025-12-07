@@ -1,5 +1,6 @@
 package com.ghydrobackend.ghydro.controller;
 
+import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.model.Recomendacao;
 import com.ghydrobackend.ghydro.service.RecomendacaoService;
 
@@ -34,10 +35,12 @@ public class RecomendacaoController {
         return recomendacaoService.listarRecomendacao();
     }
 
-    @PutMapping
-    public Recomendacao atualizarRecomendacao(@RequestBody Recomendacao recomendacao){
-        return recomendacaoService.atualizarRecomendacao(recomendacao);
+    @PutMapping("/{id}")
+    public Recomendacao atualizarRecomendacao(@PathVariable Long id, @RequestBody Recomendacao recomendacao) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return recomendacaoService.atualizarRecomendacao(id, recomendacao);
     }
+
 
     @DeleteMapping("/{id}/")
     public void deletarRecomendacao(@PathVariable Long id){
