@@ -34,9 +34,10 @@ public class CulturaController {
         return culturaService.listarCultura();
     }
 
-    @PutMapping
-    public Cultura atualizarCultura(@RequestBody Cultura cultura){
-        return culturaService.atualizarCultura(cultura);
+    @PutMapping("/{id}")
+    public Cultura atualizarCultura(@PathVariable Long id, @RequestBody Cultura cultura) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return culturaService.atualizarCultura(id, cultura);
     }
 
     @DeleteMapping("/{id}/")

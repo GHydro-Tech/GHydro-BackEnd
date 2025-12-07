@@ -6,5 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CulturaRepository extends JpaRepository<Cultura, Long>{
-    
+
+    boolean existsByNomePopularAndVariedade(String nomePopular, String variedade);
+
+    boolean existsByNomePopularAndVariedadeAndIdNot(String nomePopular, String variedade, Long id);
 }
