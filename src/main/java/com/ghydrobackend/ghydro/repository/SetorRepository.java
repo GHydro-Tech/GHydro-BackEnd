@@ -6,5 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SetorRepository extends JpaRepository<Setor, Long>{
-    
+
+    boolean existsByNomeAndPropriedadeId(String nome, Long propriedadeId);
+
+    boolean existsByNomeAndPropriedadeIdAndIdNot(String nome, Long propriedadeId, Long id);
 }

@@ -1,5 +1,6 @@
 package com.ghydrobackend.ghydro.controller;
 
+
 import com.ghydrobackend.ghydro.model.Setor;
 import com.ghydrobackend.ghydro.service.SetorService;
 
@@ -34,9 +35,10 @@ public class SetorController {
         return setorService.listarSetor();
     }
 
-    @PutMapping
-    public Setor atualizarSetor(@RequestBody Setor setor){
-        return setorService.atualizarSetor(setor);
+    @PutMapping("/{id}")
+    public Setor atualizarSetor(@PathVariable Long id, @RequestBody Setor setor) {
+        // Agora passamos o ID da URL e o Objeto do Body para a Service
+        return setorService.atualizarSetor(id, setor);
     }
 
     @DeleteMapping("/{id}/")
