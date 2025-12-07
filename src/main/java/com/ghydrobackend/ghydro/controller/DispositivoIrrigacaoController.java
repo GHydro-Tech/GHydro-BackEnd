@@ -1,6 +1,5 @@
 package com.ghydrobackend.ghydro.controller;
 
-import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.model.DispositivoIrrigacao;
 import com.ghydrobackend.ghydro.service.DispositivoIrrigacaoService;
 
