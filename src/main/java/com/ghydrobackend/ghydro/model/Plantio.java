@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ghydrobackend.ghydro.model.enums.StatusPlantio;
 
 import jakarta.persistence.CascadeType;
@@ -53,5 +54,6 @@ public class Plantio {
 
     @ManyToOne
     @JoinColumn(name = "setor_id")
+    @JsonIgnore
     private Setor setor;
 }

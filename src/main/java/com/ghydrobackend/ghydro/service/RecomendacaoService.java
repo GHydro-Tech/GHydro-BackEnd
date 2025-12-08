@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -94,8 +93,8 @@ public class RecomendacaoService {
 
     private void validarDatas(Recomendacao r) {
 
-        LocalDateTime geracao = converter(r.getDataGeracao());
-        LocalDateTime conclusao = converter(r.getDataConclusao());
+        LocalDateTime geracao = r.getDataGeracao();
+        LocalDateTime conclusao = r.getDataConclusao();
 
         if (geracao != null && geracao.isAfter(LocalDateTime.now())) {
             throw new RegraDeNegocioException("A data de geração não pode ser no futuro.");
@@ -127,9 +126,5 @@ public class RecomendacaoService {
         Plantio p = plantioRepository.findById(r.getPlantio().getId())
                 .orElseThrow(() -> new RegraDeNegocioException("O plantio informado não existe."));
         r.setPlantio(p);
-    }
-
-    private LocalDateTime converter(Timestamp ts) {
-        return ts != null ? ts.toLocalDateTime() : null;
     }
 }

@@ -36,7 +36,6 @@ public class ConfiguracaoCustoController {
 
     @PutMapping("/{id}")
     public ConfiguracaoCusto atualizarConfiguracaoCusto(@PathVariable Long id, @RequestBody ConfiguracaoCusto configuracaoCusto) {
-        // Agora passamos o ID da URL e o Objeto do Body para a Service
         return configuracaoCustoService.atualizarConfiguracaoCusto(id, configuracaoCusto);
     }
 

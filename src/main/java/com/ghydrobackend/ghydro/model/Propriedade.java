@@ -3,6 +3,8 @@ package com.ghydrobackend.ghydro.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,6 +48,7 @@ public class Propriedade {
     private Proprietario proprietario;
 
     @OneToMany(mappedBy = "propriedade", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Setor> setores = new ArrayList<>();
     
     @ManyToMany

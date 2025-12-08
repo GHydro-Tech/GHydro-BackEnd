@@ -1,6 +1,7 @@
 package com.ghydrobackend.ghydro.model;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import com.ghydrobackend.ghydro.model.enums.StatusRecomendacao;
 import com.ghydrobackend.ghydro.model.enums.TipoAcao;
@@ -37,7 +38,7 @@ public class Recomendacao {
     private Plantio plantio;
 
     @Column(name ="dataGeracao")
-    private Timestamp dataGeracao;
+    private LocalDateTime dataGeracao;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -61,7 +62,7 @@ public class Recomendacao {
     private StatusRecomendacao status;
     
     @Column(name ="dataConclusao")
-    private Timestamp dataConclusao;
+    private LocalDateTime dataConclusao;
     
     @OneToOne(mappedBy = "recomendacao")
     private ExecucaoManejo execucao;

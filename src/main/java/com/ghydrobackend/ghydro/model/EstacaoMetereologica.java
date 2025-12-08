@@ -3,6 +3,7 @@ package com.ghydrobackend.ghydro.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ghydrobackend.ghydro.model.enums.TipoEstacao;
 
 import jakarta.persistence.CascadeType;
@@ -55,5 +56,6 @@ public class EstacaoMetereologica {
     private List<LeituraClimatica> leiturasClimaticas = new ArrayList<>();
 
     @ManyToMany(mappedBy = "estacoes")
+    @JsonIgnore
     private List<Propriedade> propriedades = new ArrayList<>();
 }

@@ -1,5 +1,6 @@
 package com.ghydrobackend.ghydro.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ghydrobackend.ghydro.model.enums.Moeda;
 
 import jakarta.persistence.Column;
@@ -30,6 +31,7 @@ public class ConfiguracaoCusto {
 
     @OneToOne
     @JoinColumn(name = "propriedade_id", unique = true)
+    @JsonIgnore
     private Propriedade propriedade;
 
     @Column(name = "custoM3Agua")
