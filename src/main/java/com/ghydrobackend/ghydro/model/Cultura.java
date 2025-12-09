@@ -24,7 +24,7 @@ import lombok.Setter;
 @Table(name = "cultura")
 public class Cultura {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name ="nomeCientifico")

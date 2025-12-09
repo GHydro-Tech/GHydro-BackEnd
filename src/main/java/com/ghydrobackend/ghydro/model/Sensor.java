@@ -34,7 +34,7 @@ import lombok.Setter;
 @Table(name = "Sensor")
 public class Sensor {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private List<TipoSensor> tipos;

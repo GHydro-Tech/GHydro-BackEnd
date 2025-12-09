@@ -28,7 +28,7 @@ import lombok.Setter;
 @Table(name = "leituraSensor")
 public class LeituraSensor {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

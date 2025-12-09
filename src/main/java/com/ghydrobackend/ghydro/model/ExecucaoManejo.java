@@ -28,7 +28,7 @@ import lombok.Setter;
 @Table(name = "execucaoManejo")
 public class ExecucaoManejo {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
