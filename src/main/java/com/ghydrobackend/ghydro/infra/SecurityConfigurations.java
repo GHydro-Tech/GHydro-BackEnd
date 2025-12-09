@@ -25,15 +25,14 @@ public class SecurityConfigurations {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable()) // Desabilita proteção contra ataques CSRF (padrão em APIs REST)
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sem sessão (stateless)
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    // AQUI ESTÁ A MUDANÇA:
-                    // Liberamos TUDO que vier depois de /auth/ (login, cadastro, recuperar senha, etc)
-                    req.requestMatchers("/auth/**").permitAll();
-
-                    // O resto continua bloqueado
-                    req.anyRequest().authenticated();
+                    // A MÁGICA É AQUI:
+                    // "PermitAll" em "anyRequest" significa: Libera GERAL.
+                    // O Login vai continuar funcionando e gerando token,
+                    // mas se você chamar /propriedades sem token, ele deixa passar também.
+                    req.anyRequest().permitAll();
                 })
                 .build();
     }
