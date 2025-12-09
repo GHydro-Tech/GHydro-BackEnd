@@ -1,6 +1,5 @@
 package com.ghydrobackend.ghydro.model;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 import com.ghydrobackend.ghydro.model.enums.StatusRecomendacao;

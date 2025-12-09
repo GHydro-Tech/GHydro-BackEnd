@@ -32,7 +32,7 @@ import lombok.Setter;
 @Table(name = "plantio")
 public class Plantio {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

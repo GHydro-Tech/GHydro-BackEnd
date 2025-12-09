@@ -24,7 +24,7 @@ import lombok.Setter;
 @Table(name = "leituraClimatica")
 public class LeituraClimatica {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
