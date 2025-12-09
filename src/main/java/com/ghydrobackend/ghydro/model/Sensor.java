@@ -51,7 +51,6 @@ public class Sensor {
 
     @ManyToOne
     @JoinColumn(name = "setor_id")
-    @JsonIgnore
     private Setor setor;
 
     @OneToMany(mappedBy = "sensor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

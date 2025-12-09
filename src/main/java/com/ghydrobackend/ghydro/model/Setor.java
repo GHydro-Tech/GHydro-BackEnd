@@ -49,8 +49,10 @@ public class Setor {
     private DispositivoIrrigacao dispositivoIrrigacao;
 
     @OneToMany(mappedBy = "setor")
+    @JsonIgnore
     private List<Plantio> plantios = new ArrayList<>();
 
     @OneToMany(mappedBy = "setor")
+    @JsonIgnore
     private List<Sensor> sensores = new ArrayList<>();
 }

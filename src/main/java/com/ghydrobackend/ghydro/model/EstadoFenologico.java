@@ -1,5 +1,7 @@
 package com.ghydrobackend.ghydro.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +28,7 @@ public class EstadoFenologico {
 
     @ManyToOne
     @JoinColumn(name = "culturaId", nullable = false)
+    @JsonIgnoreProperties("estadosFenoticos")
     private Cultura cultura;
 
     @Column(name ="ordemSequencia")

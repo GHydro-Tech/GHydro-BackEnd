@@ -43,7 +43,7 @@ public class SetorService {
     public Setor salvarSetor(Setor setor) {
         validarCamposObrigatorios(setor);
 
-        // 1. Busca e valida as dependências (Isso resolve o problema de retorno nulo!)
+        // 1. Carrega as dependências
         carregarDependencias(setor);
 
         // 2. Valida unicidade do nome DENTRO da propriedade
@@ -60,19 +60,20 @@ public class SetorService {
 
         validarCamposObrigatorios(setorAtualizado);
 
-        // Se mudou alguma dependência, recarrega ela do banco
-        // Isso garante que estamos vinculando a objetos reais e existentes
+        // Se mudou a Propriedade
         if (setorAtualizado.getPropriedade() != null) {
             Propriedade prop = buscarPropriedade(setorAtualizado.getPropriedade().getId());
             setorExistente.setPropriedade(prop);
         }
 
+        // Se mudou o Solo
         if (setorAtualizado.getTipoSolo() != null) {
             TipoSolo solo = buscarTipoSolo(setorAtualizado.getTipoSolo().getId());
             setorExistente.setTipoSolo(solo);
         }
-
-        if (setorAtualizado.getDispositivoIrrigacao() != null) {
+        
+        // Se mudou o Dispositivo (Agora é opcional)
+        if (setorAtualizado.getDispositivoIrrigacao() != null && setorAtualizado.getDispositivoIrrigacao().getId() != null) {
             DispositivoIrrigacao disp = buscarDispositivo(setorAtualizado.getDispositivoIrrigacao().getId());
             setorExistente.setDispositivoIrrigacao(disp);
         }
@@ -81,7 +82,7 @@ public class SetorService {
         setorExistente.setNome(setorAtualizado.getNome());
         setorExistente.setPoligonoGeografico(setorAtualizado.getPoligonoGeografico());
 
-        // Valida duplicidade de nome (considerando a propriedade atual do setor)
+        // Valida duplicidade de nome
         boolean nomeJaExiste = setorRepository.existsByNomeAndPropriedadeIdAndIdNot(
                 setorExistente.getNome(),
                 setorExistente.getPropriedade().getId(),
@@ -99,11 +100,10 @@ public class SetorService {
         if (!setorRepository.existsById(id)) {
             throw new RegraDeNegocioException("Setor não encontrado para exclusão.");
         }
-        // Futuro: Validar se existem plantios ativos neste setor antes de deletar
         setorRepository.deleteById(id);
     }
 
-    // --- Métodos Auxiliares de Validação e Carga ---
+    // --- Métodos Auxiliares ---
 
     private void validarCamposObrigatorios(Setor s) {
         if (s.getNome() == null || s.getNome().trim().isEmpty()) {
@@ -114,25 +114,29 @@ public class SetorService {
         }
     }
 
-    // Este metodo é o segredo para não retornar nulo e validar existência
     private void carregarDependencias(Setor setor) {
+        // Propriedade continua Obrigatória
         if (setor.getPropriedade() == null || setor.getPropriedade().getId() == null) {
             throw new RegraDeNegocioException("A propriedade é obrigatória.");
         }
         setor.setPropriedade(buscarPropriedade(setor.getPropriedade().getId()));
 
+        // Solo continua Obrigatório
         if (setor.getTipoSolo() == null || setor.getTipoSolo().getId() == null) {
             throw new RegraDeNegocioException("O tipo de solo é obrigatório.");
         }
         setor.setTipoSolo(buscarTipoSolo(setor.getTipoSolo().getId()));
 
-        if (setor.getDispositivoIrrigacao() == null || setor.getDispositivoIrrigacao().getId() == null) {
-            throw new RegraDeNegocioException("O dispositivo de irrigação é obrigatório.");
+        // --- CORREÇÃO AQUI: Dispositivo agora é OPCIONAL ---
+        if (setor.getDispositivoIrrigacao() != null && setor.getDispositivoIrrigacao().getId() != null) {
+            // Se veio um ID, buscamos no banco para garantir que existe
+            setor.setDispositivoIrrigacao(buscarDispositivo(setor.getDispositivoIrrigacao().getId()));
+        } else {
+            // Se não veio nada ou veio ID nulo, definimos como null no banco
+            setor.setDispositivoIrrigacao(null);
         }
-        setor.setDispositivoIrrigacao(buscarDispositivo(setor.getDispositivoIrrigacao().getId()));
     }
 
-    // Buscas individuais com erro personalizado
     private Propriedade buscarPropriedade(Long id) {
         return propriedadeRepository.findById(id)
                 .orElseThrow(() -> new RegraDeNegocioException("Propriedade não encontrada (ID: " + id + ")"));

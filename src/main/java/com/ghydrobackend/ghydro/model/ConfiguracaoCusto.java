@@ -31,7 +31,6 @@ public class ConfiguracaoCusto {
 
     @OneToOne
     @JoinColumn(name = "propriedade_id", unique = true)
-    @JsonIgnore
     private Propriedade propriedade;
 
     @Column(name = "custoM3Agua")

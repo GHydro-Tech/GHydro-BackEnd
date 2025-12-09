@@ -77,11 +77,14 @@ public class ConfiguracaoCustoService {
         return custoRepository.save(existente);
     }
 
+    @Transactional
     public void deletarConfiguracaoCusto(Long id) {
-        if (!custoRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Configuração não encontrada para exclusão.");
+        ConfiguracaoCusto config = custoRepository.findById(id)
+                .orElseThrow(() -> new RegraDeNegocioException("Configuração não encontrada para exclusão."));
+        if (config.getPropriedade() != null) {
+            config.getPropriedade().setConfiguracaoCusto(null);
         }
-        custoRepository.deleteById(id);
+        custoRepository.delete(config);
     }
 
     // --- Métodos Auxiliares ---

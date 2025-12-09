@@ -41,6 +41,7 @@ public class Propriedade {
     private String localizacao;
 
     @OneToOne(mappedBy = "propriedade", cascade = CascadeType.ALL)
+    @JsonIgnore
     private ConfiguracaoCusto configuracaoCusto;
 
     @ManyToOne
@@ -57,5 +58,6 @@ public class Propriedade {
         joinColumns = @JoinColumn(name = "propriedade_id"),
         inverseJoinColumns = @JoinColumn(name = "estacao_id")
     )
+    @JsonIgnore
     private List<EstacaoMetereologica> estacoes = new ArrayList<>();
 }

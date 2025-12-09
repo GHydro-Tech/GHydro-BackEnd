@@ -50,6 +50,7 @@ public class Plantio {
     private StatusPlantio statusPlantio;
 
     @OneToMany(mappedBy = "plantio", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<ExecucaoManejo> manejos = new ArrayList<>();
 
     @ManyToOne

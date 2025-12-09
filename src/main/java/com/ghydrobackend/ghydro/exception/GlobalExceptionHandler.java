@@ -1,6 +1,8 @@
 package com.ghydrobackend.ghydro.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -24,4 +26,22 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(err);
     }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<StandardError> integridadeDeDados(DataIntegrityViolationException e, HttpServletRequest request) {
+        
+        StandardError err = new StandardError();
+        err.setTimestamp(Instant.now());
+        // Status 409 (Conflict) é o mais adequado semanticamente
+        err.setStatus(HttpStatus.CONFLICT.value()); 
+        err.setError("Conflito de Integridade");
+        
+        // AQUI ESTÁ A MENSAGEM QUE VAI APARECER NO FLUTTER
+        err.setMessage("Não é possível excluir este registro pois ele está vinculado a outros dados do sistema (Ex: Plantios ou Setores).");
+        
+        err.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(err);
+    }
 }
+
