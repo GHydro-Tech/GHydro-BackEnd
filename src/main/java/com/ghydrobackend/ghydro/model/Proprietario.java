@@ -5,18 +5,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
 @Setter
@@ -35,12 +25,13 @@ public class Proprietario {
     @Column(name ="cpf")
     private String cpf;
 
-    @Column(name ="login")
-    private String login;
 
-    @Column(name ="senha")
-    private String senha;
-    
+
+    // NOVO: Vínculo com a tabela de autenticação
+    @OneToOne(cascade = CascadeType.ALL) // Ao deletar proprietário, deleta usuário
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
+    private Usuario usuario;
+
     @OneToMany(mappedBy = "proprietario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Propriedade> propriedades = new ArrayList<>();

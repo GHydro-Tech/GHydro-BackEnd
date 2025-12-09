@@ -1,16 +1,19 @@
 package com.ghydrobackend.ghydro.repository;
 
 import com.ghydrobackend.ghydro.model.Proprietario;
+import com.ghydrobackend.ghydro.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 @Repository
 public interface ProprietarioRepository extends JpaRepository<Proprietario, Long>{
 
     boolean existsByCpf(String cpf);
-    boolean existsByLogin(String login);
 
-    // Verificações para Atualização (UPDATE) - ignora o próprio ID
-    boolean existsByCpfAndIdNot(String cpf, Long id);
-    boolean existsByLoginAndIdNot(String login, Long id);
+
+    Optional<Proprietario> findByUsuario(Usuario usuario);
+
+
 }

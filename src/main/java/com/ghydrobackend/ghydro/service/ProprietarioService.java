@@ -37,10 +37,6 @@ public class ProprietarioService {
             throw new RegraDeNegocioException("Já existe um proprietário cadastrado com este CPF.");
         }
 
-        // 3. Valida duplicidade de Login
-        if (proprietarioRepository.existsByLogin(proprietario.getLogin())) {
-            throw new RegraDeNegocioException("Este login já está em uso. Escolha outro.");
-        }
 
         return proprietarioRepository.save(proprietario);
     }
@@ -55,20 +51,10 @@ public class ProprietarioService {
         String cpfLimpo = limparCpf(proprietarioAtualizado.getCpf());
         proprietarioAtualizado.setCpf(cpfLimpo);
 
-        // Valida duplicidade (CPF e Login) ignorando o próprio usuário
-        if (proprietarioRepository.existsByCpfAndIdNot(cpfLimpo, id)) {
-            throw new RegraDeNegocioException("Já existe outro proprietário com este CPF.");
-        }
-
-        if (proprietarioRepository.existsByLoginAndIdNot(proprietarioAtualizado.getLogin(), id)) {
-            throw new RegraDeNegocioException("Este login já está sendo usado por outro usuário.");
-        }
 
         // Atualiza os dados
         proprietarioExistente.setNome(proprietarioAtualizado.getNome());
         proprietarioExistente.setCpf(cpfLimpo);
-        proprietarioExistente.setLogin(proprietarioAtualizado.getLogin());
-        proprietarioExistente.setSenha(proprietarioAtualizado.getSenha());
 
         return proprietarioRepository.save(proprietarioExistente);
     }
@@ -88,12 +74,6 @@ public class ProprietarioService {
         }
         if (p.getCpf() == null || p.getCpf().trim().isEmpty()) {
             throw new RegraDeNegocioException("O CPF é obrigatório.");
-        }
-        if (p.getLogin() == null || p.getLogin().trim().isEmpty()) {
-            throw new RegraDeNegocioException("O login é obrigatório.");
-        }
-        if (p.getSenha() == null || p.getSenha().trim().isEmpty()) {
-            throw new RegraDeNegocioException("A senha é obrigatória.");
         }
     }
 
