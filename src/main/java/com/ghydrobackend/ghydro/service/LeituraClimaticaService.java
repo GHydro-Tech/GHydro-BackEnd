@@ -1,10 +1,10 @@
 package com.ghydrobackend.ghydro.service;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.EstacaoMetereologica;
 import com.ghydrobackend.ghydro.model.LeituraClimatica;
 import com.ghydrobackend.ghydro.repository.EstacaoMetereologicaRepository;
 import com.ghydrobackend.ghydro.repository.LeituraClimaticaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,7 @@ public class LeituraClimaticaService {
 
     public LeituraClimatica buscarPorId(Long id) {
         return leituraRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Leitura climática não encontrada com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Leitura climática não encontrada com o ID: " + id));
     }
 
     @Transactional
@@ -42,7 +42,7 @@ public class LeituraClimaticaService {
         if (leituraRepository.existsByEstacaoMetereologicaIdAndDataHora(
                 leitura.getEstacaoMetereologica().getId(),
                 leitura.getDataHora())) {
-            throw new RegraDeNegocioException("Já existe uma leitura registrada para esta estação neste horário.");
+            throw new IllegalArgumentException("Já existe uma leitura registrada para esta estação neste horário.");
         }
 
         return leituraRepository.save(leitura);
@@ -76,7 +76,7 @@ public class LeituraClimaticaService {
 
     public void deletarLeituraClimatica(Long id) {
         if (!leituraRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Leitura não encontrada para exclusão.");
+            throw new EntityNotFoundException("Leitura não encontrada para exclusão.");
         }
         leituraRepository.deleteById(id);
     }
@@ -85,10 +85,10 @@ public class LeituraClimaticaService {
 
     private void validarCamposObrigatorios(LeituraClimatica l) {
         if (l.getDataHora() == null) {
-            throw new RegraDeNegocioException("A data e hora da leitura são obrigatórias.");
+            throw new IllegalArgumentException("A data e hora da leitura são obrigatórias.");
         }
         if (l.getDataHora().isAfter(LocalDateTime.now())) {
-            throw new RegraDeNegocioException("A data da leitura não pode ser no futuro.");
+            throw new IllegalArgumentException("A data da leitura não pode ser no futuro.");
         }
     }
 
@@ -96,36 +96,36 @@ public class LeituraClimaticaService {
         // Validação Térmica
         if (l.getTemperaturaMaxima() != null && l.getTemperaturaMinima() != null) {
             if (l.getTemperaturaMinima() > l.getTemperaturaMaxima()) {
-                throw new RegraDeNegocioException("A temperatura mínima não pode ser maior que a máxima.");
+                throw new IllegalArgumentException("A temperatura mínima não pode ser maior que a máxima.");
             }
         }
 
         // Umidade (0-100%)
         if (l.getUmidadeRelativaAr() != null) {
             if (l.getUmidadeRelativaAr() < 0 || l.getUmidadeRelativaAr() > 100) {
-                throw new RegraDeNegocioException("A umidade relativa deve estar entre 0% e 100%.");
+                throw new IllegalArgumentException("A umidade relativa deve estar entre 0% e 100%.");
             }
         }
 
         // Valores não negativos
         if (l.getVelocidadeVento() != null && l.getVelocidadeVento() < 0) {
-            throw new RegraDeNegocioException("A velocidade do vento não pode ser negativa.");
+            throw new IllegalArgumentException("A velocidade do vento não pode ser negativa.");
         }
         if (l.getRadiacaoSolar() != null && l.getRadiacaoSolar() < 0) {
-            throw new RegraDeNegocioException("A radiação solar não pode ser negativa.");
+            throw new IllegalArgumentException("A radiação solar não pode ser negativa.");
         }
         if (l.getPrecipitacao() != null && l.getPrecipitacao() < 0) {
-            throw new RegraDeNegocioException("A precipitação não pode ser negativa.");
+            throw new IllegalArgumentException("A precipitação não pode ser negativa.");
         }
     }
 
     private void carregarEstacao(LeituraClimatica l) {
         if (l.getEstacaoMetereologica() == null || l.getEstacaoMetereologica().getId() == null) {
-            throw new RegraDeNegocioException("É obrigatório informar a Estação Meteorológica.");
+            throw new IllegalArgumentException("É obrigatório informar a Estação Meteorológica.");
         }
 
         EstacaoMetereologica estacao = estacaoRepository.findById(l.getEstacaoMetereologica().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("A Estação informada não existe."));
+                .orElseThrow(() -> new EntityNotFoundException("A Estação informada não existe."));
 
         l.setEstacaoMetereologica(estacao);
     }

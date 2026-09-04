@@ -1,10 +1,10 @@
 package com.ghydrobackend.ghydro.service;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.ConfiguracaoCusto;
 import com.ghydrobackend.ghydro.model.Propriedade;
 import com.ghydrobackend.ghydro.repository.ConfiguracaoCustoRepository;
 import com.ghydrobackend.ghydro.repository.PropriedadeRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ public class ConfiguracaoCustoService {
 
     public ConfiguracaoCusto buscarPorId(Long id) {
         return custoRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Configuração de custo não encontrada com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Configuração de custo não encontrada com o ID: " + id));
     }
 
     @Transactional
@@ -39,7 +39,7 @@ public class ConfiguracaoCustoService {
 
         // 2. REGRA DE OURO (1:1): Verifica se essa propriedade JÁ TEM configuração
         if (custoRepository.existsByPropriedadeId(config.getPropriedade().getId())) {
-            throw new RegraDeNegocioException("Esta propriedade já possui uma configuração de custos definida. Use a atualização.");
+            throw new IllegalArgumentException("Esta propriedade já possui uma configuração de custos definida. Use a atualização.");
         }
 
         return custoRepository.save(config);
@@ -63,7 +63,7 @@ public class ConfiguracaoCustoService {
             );
 
             if (jaExiste) {
-                throw new RegraDeNegocioException("A propriedade informada já possui outra configuração de custos.");
+                throw new IllegalArgumentException("A propriedade informada já possui outra configuração de custos.");
             }
 
             existente.setPropriedade(configAtualizada.getPropriedade());
@@ -80,7 +80,7 @@ public class ConfiguracaoCustoService {
     @Transactional
     public void deletarConfiguracaoCusto(Long id) {
         ConfiguracaoCusto config = custoRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Configuração não encontrada para exclusão."));
+                .orElseThrow(() -> new EntityNotFoundException("Configuração não encontrada para exclusão."));
         if (config.getPropriedade() != null) {
             config.getPropriedade().setConfiguracaoCusto(null);
         }
@@ -91,32 +91,32 @@ public class ConfiguracaoCustoService {
 
     private void validarCamposObrigatorios(ConfiguracaoCusto c) {
         if (c.getMoeda() == null) {
-            throw new RegraDeNegocioException("A moeda é obrigatória.");
+            throw new IllegalArgumentException("A moeda é obrigatória.");
         }
         if (c.getCustoM3Agua() == null) {
-            throw new RegraDeNegocioException("O custo do m³ de água é obrigatório.");
+            throw new IllegalArgumentException("O custo do m³ de água é obrigatório.");
         }
         if (c.getCustoKWh() == null) {
-            throw new RegraDeNegocioException("O custo do kWh é obrigatório.");
+            throw new IllegalArgumentException("O custo do kWh é obrigatório.");
         }
     }
 
     private void validarValores(ConfiguracaoCusto c) {
         if (c.getCustoM3Agua() < 0) {
-            throw new RegraDeNegocioException("O custo da água não pode ser negativo.");
+            throw new IllegalArgumentException("O custo da água não pode ser negativo.");
         }
         if (c.getCustoKWh() < 0) {
-            throw new RegraDeNegocioException("O custo de energia não pode ser negativo.");
+            throw new IllegalArgumentException("O custo de energia não pode ser negativo.");
         }
     }
 
     private void carregarPropriedade(ConfiguracaoCusto c) {
         if (c.getPropriedade() == null || c.getPropriedade().getId() == null) {
-            throw new RegraDeNegocioException("É obrigatório informar a Propriedade.");
+            throw new IllegalArgumentException("É obrigatório informar a Propriedade.");
         }
 
         Propriedade prop = propriedadeRepository.findById(c.getPropriedade().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("A Propriedade informada não existe."));
+                .orElseThrow(() -> new EntityNotFoundException("A Propriedade informada não existe."));
 
         c.setPropriedade(prop);
     }

@@ -1,6 +1,5 @@
 package com.ghydrobackend.ghydro.service;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.model.Plantio;
 import com.ghydrobackend.ghydro.model.Setor;
@@ -9,6 +8,7 @@ import com.ghydrobackend.ghydro.repository.CulturaRepository;
 import com.ghydrobackend.ghydro.repository.PlantioRepository;
 import com.ghydrobackend.ghydro.repository.SetorRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +36,7 @@ public class PlantioService {
     // BUSCAR POR ID
     public Plantio buscarPorId(Long id) {
         return plantioRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Plantio não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Plantio não encontrado com o ID: " + id));
     }
 
     // SALVAR
@@ -72,12 +72,12 @@ public class PlantioService {
 
         // Não permitir retroceder status quando já CONCLUÍDO
         if (antigo == StatusPlantio.CONCLUIDO && novo != StatusPlantio.CONCLUIDO) {
-            throw new RegraDeNegocioException("Não é possível alterar um plantio que já foi CONCLUÍDO.");
+            throw new IllegalArgumentException("Não é possível alterar um plantio que já foi CONCLUÍDO.");
         }
 
         // Não permite pular de PLANEJADO direto para CONCLUIDO
         if (antigo == StatusPlantio.PLANEJADO && novo == StatusPlantio.CONCLUIDO) {
-            throw new RegraDeNegocioException(
+            throw new IllegalArgumentException(
                     "O plantio deve estar EM_ANDAMENTO antes de ser CONCLUÍDO."
             );
         }
@@ -88,13 +88,13 @@ public class PlantioService {
 
         if (plantioAtualizado.getCultura() != null) {
             Cultura c = culturaRepository.findById(plantioAtualizado.getCultura().getId())
-                    .orElseThrow(() -> new RegraDeNegocioException("Cultura não encontrada."));
+                    .orElseThrow(() -> new EntityNotFoundException("Cultura não encontrada."));
             plantioExistente.setCultura(c);
         }
 
         if (plantioAtualizado.getSetor() != null) {
             Setor s = setorRepository.findById(plantioAtualizado.getSetor().getId())
-                    .orElseThrow(() -> new RegraDeNegocioException("Setor não encontrado."));
+                    .orElseThrow(() -> new EntityNotFoundException("Setor não encontrado."));
             plantioExistente.setSetor(s);
         }
 
@@ -111,7 +111,7 @@ public class PlantioService {
     // DELETAR
     public void deletarPlantio(Long id) {
         if (!plantioRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Plantio não encontrado para exclusão.");
+            throw new EntityNotFoundException("Plantio não encontrado para exclusão.");
         }
         plantioRepository.deleteById(id);
     }
@@ -122,16 +122,16 @@ public class PlantioService {
 
     private void validarCamposObrigatorios(Plantio p) {
         if (p.getDataPlantio() == null) {
-            throw new RegraDeNegocioException("A data do plantio é obrigatória.");
+            throw new IllegalArgumentException("A data do plantio é obrigatória.");
         }
         if (p.getStatusPlantio() == null) {
-            throw new RegraDeNegocioException("O status do plantio é obrigatório.");
+            throw new IllegalArgumentException("O status do plantio é obrigatório.");
         }
         if (p.getCultura() == null || p.getCultura().getId() == null) {
-            throw new RegraDeNegocioException("A cultura é obrigatória.");
+            throw new IllegalArgumentException("A cultura é obrigatória.");
         }
         if (p.getSetor() == null || p.getSetor().getId() == null) {
-            throw new RegraDeNegocioException("O setor é obrigatório.");
+            throw new IllegalArgumentException("O setor é obrigatório.");
         }
     }
 
@@ -141,10 +141,10 @@ public class PlantioService {
 
         if (colheita != null) {
             if (colheita.isBefore(plantio)) {
-                throw new RegraDeNegocioException("A data estimada de colheita não pode ser antes da data de plantio.");
+                throw new IllegalArgumentException("A data estimada de colheita não pode ser antes da data de plantio.");
             }
             if (colheita.isEqual(plantio)) {
-                throw new RegraDeNegocioException("A colheita não pode ocorrer no mesmo dia do plantio.");
+                throw new IllegalArgumentException("A colheita não pode ocorrer no mesmo dia do plantio.");
             }
         }
     }
@@ -152,12 +152,12 @@ public class PlantioService {
     private void carregarDependencias(Plantio p) {
         // Cultura
         Cultura cultura = culturaRepository.findById(p.getCultura().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("Cultura informada não existe."));
+                .orElseThrow(() -> new EntityNotFoundException("Cultura informada não existe."));
         p.setCultura(cultura);
 
         // Setor
         Setor setor = setorRepository.findById(p.getSetor().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("Setor informado não existe."));
+                .orElseThrow(() -> new EntityNotFoundException("Setor informado não existe."));
         p.setSetor(setor);
     }
 }

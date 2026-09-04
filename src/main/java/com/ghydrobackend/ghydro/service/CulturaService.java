@@ -1,8 +1,8 @@
 package com.ghydrobackend.ghydro.service;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.Cultura;
 import com.ghydrobackend.ghydro.repository.CulturaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ public class CulturaService {
 
     public Cultura buscarPorId(Long id) {
         return culturaRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Cultura não encontrada com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Cultura não encontrada com o ID: " + id));
     }
 
     @Transactional
@@ -31,7 +31,7 @@ public class CulturaService {
 
         // 2. Valida duplicidade (Regra de Negócio)
         if (culturaRepository.existsByNomePopularAndVariedade(cultura.getNomePopular(), cultura.getVariedade())) {
-            throw new RegraDeNegocioException(
+            throw new IllegalArgumentException(
                     "Já existe uma cultura cadastrada com o nome '" + cultura.getNomePopular() +
                             "' e variedade '" + cultura.getVariedade() + "'."
             );
@@ -55,7 +55,7 @@ public class CulturaService {
         );
 
         if (jaExiste) {
-            throw new RegraDeNegocioException("Já existe outra cultura com este nome e variedade.");
+            throw new IllegalArgumentException("Já existe outra cultura com este nome e variedade.");
         }
 
         // Atualiza os dados do objeto recuperado do banco
@@ -70,7 +70,7 @@ public class CulturaService {
 
     public void deletarCultura(Long id) {
         if (!culturaRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Cultura não encontrada para exclusão.");
+            throw new EntityNotFoundException("Cultura não encontrada para exclusão.");
         }
         culturaRepository.deleteById(id);
     }
@@ -78,10 +78,10 @@ public class CulturaService {
     // Metodo auxiliar para não poluir o código principal
     private void validarCamposObrigatorios(Cultura cultura) {
         if (cultura.getNomePopular() == null || cultura.getNomePopular().trim().isEmpty()) {
-            throw new RegraDeNegocioException("O nome popular é obrigatório.");
+            throw new IllegalArgumentException("O nome popular é obrigatório.");
         }
         if (cultura.getVariedade() == null || cultura.getVariedade().trim().isEmpty()) {
-            throw new RegraDeNegocioException("A variedade é obrigatória.");
+            throw new IllegalArgumentException("A variedade é obrigatória.");
         }
     }
 }

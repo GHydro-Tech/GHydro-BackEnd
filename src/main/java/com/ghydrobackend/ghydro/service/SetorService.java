@@ -1,6 +1,5 @@
 package com.ghydrobackend.ghydro.service;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.DispositivoIrrigacao;
 import com.ghydrobackend.ghydro.model.Propriedade;
 import com.ghydrobackend.ghydro.model.Setor;
@@ -9,6 +8,7 @@ import com.ghydrobackend.ghydro.repository.DispositivoIrrigacaoRepository;
 import com.ghydrobackend.ghydro.repository.PropriedadeRepository;
 import com.ghydrobackend.ghydro.repository.SetorRepository;
 import com.ghydrobackend.ghydro.repository.TipoSoloRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +36,7 @@ public class SetorService {
 
     public Setor buscarPorId(Long id) {
         return setorRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Setor não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Setor não encontrado com o ID: " + id));
     }
 
     @Transactional
@@ -48,7 +48,7 @@ public class SetorService {
 
         // 2. Valida unicidade do nome DENTRO da propriedade
         if (setorRepository.existsByNomeAndPropriedadeId(setor.getNome(), setor.getPropriedade().getId())) {
-            throw new RegraDeNegocioException("Já existe um setor chamado '" + setor.getNome() + "' nesta propriedade.");
+            throw new IllegalArgumentException("Já existe um setor chamado '" + setor.getNome() + "' nesta propriedade.");
         }
 
         return setorRepository.save(setor);
@@ -71,7 +71,7 @@ public class SetorService {
             TipoSolo solo = buscarTipoSolo(setorAtualizado.getTipoSolo().getId());
             setorExistente.setTipoSolo(solo);
         }
-        
+
         // Se mudou o Dispositivo (Agora é opcional)
         if (setorAtualizado.getDispositivoIrrigacao() != null && setorAtualizado.getDispositivoIrrigacao().getId() != null) {
             DispositivoIrrigacao disp = buscarDispositivo(setorAtualizado.getDispositivoIrrigacao().getId());
@@ -90,7 +90,7 @@ public class SetorService {
         );
 
         if (nomeJaExiste) {
-            throw new RegraDeNegocioException("Já existe outro setor com este nome nesta propriedade.");
+            throw new IllegalArgumentException("Já existe outro setor com este nome nesta propriedade.");
         }
 
         return setorRepository.save(setorExistente);
@@ -98,7 +98,7 @@ public class SetorService {
 
     public void deletarSetor(Long id) {
         if (!setorRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Setor não encontrado para exclusão.");
+            throw new EntityNotFoundException("Setor não encontrado para exclusão.");
         }
         setorRepository.deleteById(id);
     }
@@ -107,23 +107,23 @@ public class SetorService {
 
     private void validarCamposObrigatorios(Setor s) {
         if (s.getNome() == null || s.getNome().trim().isEmpty()) {
-            throw new RegraDeNegocioException("O nome do setor é obrigatório.");
+            throw new IllegalArgumentException("O nome do setor é obrigatório.");
         }
         if (s.getPoligonoGeografico() == null || s.getPoligonoGeografico().trim().isEmpty()) {
-            throw new RegraDeNegocioException("O polígono geográfico é obrigatório.");
+            throw new IllegalArgumentException("O polígono geográfico é obrigatório.");
         }
     }
 
     private void carregarDependencias(Setor setor) {
         // Propriedade continua Obrigatória
         if (setor.getPropriedade() == null || setor.getPropriedade().getId() == null) {
-            throw new RegraDeNegocioException("A propriedade é obrigatória.");
+            throw new IllegalArgumentException("A propriedade é obrigatória.");
         }
         setor.setPropriedade(buscarPropriedade(setor.getPropriedade().getId()));
 
         // Solo continua Obrigatório
         if (setor.getTipoSolo() == null || setor.getTipoSolo().getId() == null) {
-            throw new RegraDeNegocioException("O tipo de solo é obrigatório.");
+            throw new IllegalArgumentException("O tipo de solo é obrigatório.");
         }
         setor.setTipoSolo(buscarTipoSolo(setor.getTipoSolo().getId()));
 
@@ -139,16 +139,16 @@ public class SetorService {
 
     private Propriedade buscarPropriedade(Long id) {
         return propriedadeRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Propriedade não encontrada (ID: " + id + ")"));
+                .orElseThrow(() -> new EntityNotFoundException("Propriedade não encontrada (ID: " + id + ")"));
     }
 
     private TipoSolo buscarTipoSolo(Long id) {
         return tipoSoloRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Tipo de Solo não encontrado (ID: " + id + ")"));
+                .orElseThrow(() -> new EntityNotFoundException("Tipo de Solo não encontrado (ID: " + id + ")"));
     }
 
     private DispositivoIrrigacao buscarDispositivo(Long id) {
         return dispositivoIrrigacaoRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Dispositivo de Irrigação não encontrado (ID: " + id + ")"));
+                .orElseThrow(() -> new EntityNotFoundException("Dispositivo de Irrigação não encontrado (ID: " + id + ")"));
     }
 }

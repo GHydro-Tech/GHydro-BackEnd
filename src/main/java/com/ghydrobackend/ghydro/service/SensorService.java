@@ -1,10 +1,10 @@
 package com.ghydrobackend.ghydro.service;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.Sensor;
 import com.ghydrobackend.ghydro.model.Setor;
 import com.ghydrobackend.ghydro.repository.SensorRepository;
 import com.ghydrobackend.ghydro.repository.SetorRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,7 @@ public class SensorService {
 
     public Sensor buscarPorId(Long id) {
         return sensorRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Sensor não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Sensor não encontrado com o ID: " + id));
     }
 
     @Transactional
@@ -65,7 +65,7 @@ public class SensorService {
 
     public void deletarSensor(Long id) {
         if (!sensorRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Sensor não encontrado para exclusão.");
+            throw new EntityNotFoundException("Sensor não encontrado para exclusão.");
         }
         sensorRepository.deleteById(id);
     }
@@ -74,14 +74,14 @@ public class SensorService {
 
     private void validarCamposObrigatorios(Sensor s) {
         if (s.getStatus() == null) {
-            throw new RegraDeNegocioException("O status do sensor é obrigatório.");
+            throw new IllegalArgumentException("O status do sensor é obrigatório.");
         }
         if (s.getDataInstalacao() == null) {
-            throw new RegraDeNegocioException("A data de instalação é obrigatória.");
+            throw new IllegalArgumentException("A data de instalação é obrigatória.");
         }
         // Valida se a lista de tipos não está vazia ou nula
         if (s.getTipos() == null || s.getTipos().isEmpty()) {
-            throw new RegraDeNegocioException("O sensor deve possuir pelo menos um Tipo (ex: TEMPERATURA, UMIDADE).");
+            throw new IllegalArgumentException("O sensor deve possuir pelo menos um Tipo (ex: TEMPERATURA, UMIDADE).");
         }
     }
 
@@ -89,23 +89,23 @@ public class SensorService {
         // Validação de Bateria (0 a 100%)
         if (s.getNivelBateria() != null) {
             if (s.getNivelBateria() < 0 || s.getNivelBateria() > 100) {
-                throw new RegraDeNegocioException("O nível de bateria deve estar entre 0 e 100.");
+                throw new IllegalArgumentException("O nível de bateria deve estar entre 0 e 100.");
             }
         }
 
         // Validação de Data (Não pode ser futura)
         if (s.getDataInstalacao().isAfter(LocalDateTime.now())) {
-            throw new RegraDeNegocioException("A data de instalação não pode ser no futuro.");
+            throw new IllegalArgumentException("A data de instalação não pode ser no futuro.");
         }
     }
 
     private void carregarSetor(Sensor sensor) {
         if (sensor.getSetor() == null || sensor.getSetor().getId() == null) {
-            throw new RegraDeNegocioException("É obrigatório vincular o sensor a um Setor.");
+            throw new IllegalArgumentException("É obrigatório vincular o sensor a um Setor.");
         }
 
         Setor setorCompleto = setorRepository.findById(sensor.getSetor().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("O Setor informado (ID " + sensor.getSetor().getId() + ") não existe."));
+                .orElseThrow(() -> new EntityNotFoundException("O Setor informado (ID " + sensor.getSetor().getId() + ") não existe."));
 
         sensor.setSetor(setorCompleto);
     }
