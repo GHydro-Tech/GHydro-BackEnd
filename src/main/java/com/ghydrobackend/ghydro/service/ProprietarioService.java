@@ -1,8 +1,8 @@
 package com.ghydrobackend.ghydro.service;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.Proprietario;
 import com.ghydrobackend.ghydro.repository.ProprietarioRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ public class ProprietarioService {
 
     public Proprietario buscarPorId(Long id) {
         return proprietarioRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Proprietário não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Proprietário não encontrado com o ID: " + id));
     }
 
     @Transactional
@@ -34,9 +34,8 @@ public class ProprietarioService {
 
         // 2. Valida duplicidade de CPF
         if (proprietarioRepository.existsByCpf(cpfLimpo)) {
-            throw new RegraDeNegocioException("Já existe um proprietário cadastrado com este CPF.");
+            throw new IllegalArgumentException("Já existe um proprietário cadastrado com este CPF.");
         }
-
 
         return proprietarioRepository.save(proprietario);
     }
@@ -61,7 +60,7 @@ public class ProprietarioService {
 
     public void deletarProprietario(Long id) {
         if (!proprietarioRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Proprietário não encontrado para exclusão.");
+            throw new EntityNotFoundException("Proprietário não encontrado para exclusão.");
         }
         proprietarioRepository.deleteById(id);
     }
@@ -70,10 +69,10 @@ public class ProprietarioService {
 
     private void validarCamposObrigatorios(Proprietario p) {
         if (p.getNome() == null || p.getNome().trim().isEmpty()) {
-            throw new RegraDeNegocioException("O nome é obrigatório.");
+            throw new IllegalArgumentException("O nome é obrigatório.");
         }
         if (p.getCpf() == null || p.getCpf().trim().isEmpty()) {
-            throw new RegraDeNegocioException("O CPF é obrigatório.");
+            throw new IllegalArgumentException("O CPF é obrigatório.");
         }
     }
 

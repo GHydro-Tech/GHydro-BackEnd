@@ -1,12 +1,12 @@
 package com.ghydrobackend.ghydro.service;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.Plantio;
 import com.ghydrobackend.ghydro.model.Recomendacao;
 import com.ghydrobackend.ghydro.model.enums.StatusRecomendacao;
 import com.ghydrobackend.ghydro.repository.PlantioRepository;
 import com.ghydrobackend.ghydro.repository.RecomendacaoRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +29,7 @@ public class RecomendacaoService {
 
     public Recomendacao buscarPorId(Long id) {
         return recomendacaoRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Recomendação não encontrada pelo ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Recomendação não encontrada pelo ID: " + id));
     }
 
     @Transactional
@@ -68,7 +68,7 @@ public class RecomendacaoService {
 
     public void deletarRecomendacao(Long id) {
         if (!recomendacaoRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Recomendação não encontrada para exclusão.");
+            throw new EntityNotFoundException("Recomendação não encontrada para exclusão.");
         }
         recomendacaoRepository.deleteById(id);
     }
@@ -79,15 +79,15 @@ public class RecomendacaoService {
     private void validarCamposObrigatorios(Recomendacao r) {
 
         if (r.getPlantio() == null || r.getPlantio().getId() == null) {
-            throw new RegraDeNegocioException("É obrigatório informar o plantio relacionado.");
+            throw new IllegalArgumentException("É obrigatório informar o plantio relacionado.");
         }
 
         if (r.getTipoAcao() == null) {
-            throw new RegraDeNegocioException("O tipo da ação é obrigatório.");
+            throw new IllegalArgumentException("O tipo da ação é obrigatório.");
         }
 
         if (r.getStatus() == null) {
-            throw new RegraDeNegocioException("O status da recomendação é obrigatório.");
+            throw new IllegalArgumentException("O status da recomendação é obrigatório.");
         }
     }
 
@@ -97,16 +97,16 @@ public class RecomendacaoService {
         LocalDateTime conclusao = r.getDataConclusao();
 
         if (geracao != null && geracao.isAfter(LocalDateTime.now())) {
-            throw new RegraDeNegocioException("A data de geração não pode ser no futuro.");
+            throw new IllegalArgumentException("A data de geração não pode ser no futuro.");
         }
 
         if (conclusao != null && conclusao.isBefore(geracao)) {
-            throw new RegraDeNegocioException("A data de conclusão não pode ser anterior à geração.");
+            throw new IllegalArgumentException("A data de conclusão não pode ser anterior à geração.");
         }
 
         // Se status for EXECUTADA_AUTOMATICA → precisa ter conclusão
         if (r.getStatus() == StatusRecomendacao.EXECUTADA_AUTOMATICA && conclusao == null) {
-            throw new RegraDeNegocioException("Recomendações automáticas executadas devem ter a data de conclusão.");
+            throw new IllegalArgumentException("Recomendações automáticas executadas devem ter a data de conclusão.");
         }
 
         // Se NÃO for executada, limpeza opcional
@@ -116,15 +116,14 @@ public class RecomendacaoService {
     }
 
     private void validarValores(Recomendacao r) {
-        // CORREÇÃO AQUI: Troque &lt;= por <=
         if (r.getQuantidade() != null && r.getQuantidade() <= 0) {
-            throw new RegraDeNegocioException("A quantidade deve ser maior que zero.");
+            throw new IllegalArgumentException("A quantidade deve ser maior que zero.");
         }
     }
 
     private void carregarPlantio(Recomendacao r) {
         Plantio p = plantioRepository.findById(r.getPlantio().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("O plantio informado não existe."));
+                .orElseThrow(() -> new EntityNotFoundException("O plantio informado não existe."));
         r.setPlantio(p);
     }
 }

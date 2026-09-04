@@ -3,11 +3,11 @@ package com.ghydrobackend.ghydro.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.ExecucaoManejo;
 import com.ghydrobackend.ghydro.model.Plantio;
 import com.ghydrobackend.ghydro.model.Recomendacao;
@@ -33,7 +33,7 @@ public class ExecucaoManejoService {
 
     public ExecucaoManejo buscarPorId(Long id) {
         return execucaoRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Execução de manejo não encontrada para o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Execução de manejo não encontrada para o ID: " + id));
     }
 
     @Transactional
@@ -70,7 +70,7 @@ public class ExecucaoManejoService {
 
     public void deletarExecucaoManejo(Long id) {
         if (!execucaoRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Execução de manejo não encontrada para exclusão.");
+            throw new EntityNotFoundException("Execução de manejo não encontrada para exclusão.");
         }
         execucaoRepository.deleteById(id);
     }
@@ -79,30 +79,30 @@ public class ExecucaoManejoService {
 
     private void validarCamposObrigatorios(ExecucaoManejo e) {
         if (e.getInicio() == null) {
-            throw new RegraDeNegocioException("A data de início é obrigatória.");
+            throw new IllegalArgumentException("A data de início é obrigatória.");
         }
         if (e.getOrigem() == null) {
-            throw new RegraDeNegocioException("A origem do manejo é obrigatória.");
+            throw new IllegalArgumentException("A origem do manejo é obrigatória.");
         }
     }
 
     private void validarDatas(ExecucaoManejo e) {
 
         if (e.getInicio().isAfter(LocalDateTime.now())) {
-            throw new RegraDeNegocioException("A data de início não pode ser futura.");
+            throw new IllegalArgumentException("A data de início não pode ser futura.");
         }
 
         if (e.getFim() != null && e.getFim().isBefore(e.getInicio())) {
-            throw new RegraDeNegocioException("A data de fim não pode ser anterior ao início.");
+            throw new IllegalArgumentException("A data de fim não pode ser anterior ao início.");
         }
     }
 
     private void validarValoresFisicos(ExecucaoManejo e) {
         if (e.getVolumeAguaAplicado() != null && e.getVolumeAguaAplicado() < 0) {
-            throw new RegraDeNegocioException("O volume de água aplicado não pode ser negativo.");
+            throw new IllegalArgumentException("O volume de água aplicado não pode ser negativo.");
         }
         if (e.getEnergiaGasta() != null && e.getEnergiaGasta() < 0) {
-            throw new RegraDeNegocioException("A energia gasta não pode ser negativa.");
+            throw new IllegalArgumentException("A energia gasta não pode ser negativa.");
         }
     }
 
@@ -110,17 +110,17 @@ public class ExecucaoManejoService {
 
         // Validar e carregar Plantio
         if (e.getPlantio() == null || e.getPlantio().getId() == null) {
-            throw new RegraDeNegocioException("É obrigatório informar o plantio.");
+            throw new IllegalArgumentException("É obrigatório informar o plantio.");
         }
 
         Plantio plantio = plantioRepository.findById(e.getPlantio().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("Plantio informado não existe."));
+                .orElseThrow(() -> new EntityNotFoundException("Plantio informado não existe."));
         e.setPlantio(plantio);
 
         // Recomendação é opcional, mas se vier precisa existir
         if (e.getRecomendacao() != null && e.getRecomendacao().getId() != null) {
             Recomendacao rec = recomendacaoRepository.findById(e.getRecomendacao().getId())
-                    .orElseThrow(() -> new RegraDeNegocioException("Recomendação informada não existe."));
+                    .orElseThrow(() -> new EntityNotFoundException("Recomendação informada não existe."));
             e.setRecomendacao(rec);
         }
     }

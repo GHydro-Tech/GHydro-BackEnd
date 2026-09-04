@@ -26,12 +26,6 @@ public class Proprietario {
     private String cpf;
 
 
-
-    // NOVO: Vínculo com a tabela de autenticação
-    @OneToOne(cascade = CascadeType.ALL) // Ao deletar proprietário, deleta usuário
-    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
-    private Usuario usuario;
-
     @OneToMany(mappedBy = "proprietario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Propriedade> propriedades = new ArrayList<>();

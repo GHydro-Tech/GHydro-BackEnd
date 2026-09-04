@@ -1,10 +1,10 @@
 package com.ghydrobackend.ghydro.service;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.DispositivoIrrigacao;
 import com.ghydrobackend.ghydro.model.Setor;
 import com.ghydrobackend.ghydro.repository.DispositivoIrrigacaoRepository;
 import com.ghydrobackend.ghydro.repository.SetorRepository;
+import jakarta.persistence.EntityNotFoundException; // Use javax.persistence se for Spring Boot 2.x
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ public class DispositivoIrrigacaoService {
 
     public DispositivoIrrigacao buscarPorId(Long id) {
         return dispositivoRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Dispositivo não encontrado com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Dispositivo não encontrado com o ID: " + id));
     }
 
     @Transactional
@@ -39,7 +39,7 @@ public class DispositivoIrrigacaoService {
 
         // Valida unicidade de nome no setor
         if (dispositivoRepository.existsByNomeAndSetorId(dispositivo.getNome(), dispositivo.getSetor().getId())) {
-            throw new RegraDeNegocioException("Já existe um dispositivo chamado '" + dispositivo.getNome() + "' neste setor.");
+            throw new IllegalArgumentException("Já existe um dispositivo chamado '" + dispositivo.getNome() + "' neste setor.");
         }
 
         return dispositivoRepository.save(dispositivo);
@@ -73,7 +73,7 @@ public class DispositivoIrrigacaoService {
         );
 
         if (nomeJaExiste) {
-            throw new RegraDeNegocioException("Já existe outro dispositivo com este nome neste setor.");
+            throw new IllegalArgumentException("Já existe outro dispositivo com este nome neste setor.");
         }
 
         return dispositivoRepository.save(dispositivoExistente);
@@ -81,7 +81,7 @@ public class DispositivoIrrigacaoService {
 
     public void deletarDispositivoIrrigacao(Long id) {
         if (!dispositivoRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Dispositivo não encontrado para exclusão.");
+            throw new EntityNotFoundException("Dispositivo não encontrado para exclusão.");
         }
         dispositivoRepository.deleteById(id);
     }
@@ -90,10 +90,10 @@ public class DispositivoIrrigacaoService {
 
     private void validarCamposObrigatorios(DispositivoIrrigacao d) {
         if (d.getNome() == null || d.getNome().trim().isEmpty()) {
-            throw new RegraDeNegocioException("O nome do dispositivo é obrigatório.");
+            throw new IllegalArgumentException("O nome do dispositivo é obrigatório.");
         }
         if (d.getTipoDispositivo() == null) {
-            throw new RegraDeNegocioException("O tipo do dispositivo é obrigatório.");
+            throw new IllegalArgumentException("O tipo do dispositivo é obrigatório.");
         }
     }
 
@@ -101,29 +101,28 @@ public class DispositivoIrrigacaoService {
         // Eficiência: 0 a 100%
         if (d.getEficienciaIrrigacao() != null) {
             if (d.getEficienciaIrrigacao() <= 0 || d.getEficienciaIrrigacao() > 100) {
-                throw new RegraDeNegocioException("A eficiência deve ser maior que 0 e menor ou igual a 100.");
+                throw new IllegalArgumentException("A eficiência deve ser maior que 0 e menor ou igual a 100.");
             }
         }
 
         // Vazão: Positiva
         if (d.getVazaoNominal() != null && d.getVazaoNominal() <= 0) {
-            throw new RegraDeNegocioException("A vazão nominal deve ser maior que zero.");
+            throw new IllegalArgumentException("A vazão nominal deve ser maior que zero.");
         }
 
         // Potência: Positiva
         if (d.getPotenciaMotor() != null && d.getPotenciaMotor() <= 0) {
-            throw new RegraDeNegocioException("A potência do motor deve ser maior que zero.");
+            throw new IllegalArgumentException("A potência do motor deve ser maior que zero.");
         }
     }
 
-
     private void carregarSetor(DispositivoIrrigacao d) {
         if (d.getSetor() == null || d.getSetor().getId() == null) {
-            throw new RegraDeNegocioException("É obrigatório vincular o dispositivo a um Setor.");
+            throw new IllegalArgumentException("É obrigatório vincular o dispositivo a um Setor.");
         }
 
         Setor setorCompleto = setorRepository.findById(d.getSetor().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("O Setor informado (ID " + d.getSetor().getId() + ") não existe."));
+                .orElseThrow(() -> new EntityNotFoundException("O Setor informado (ID " + d.getSetor().getId() + ") não existe."));
 
         d.setSetor(setorCompleto);
     }

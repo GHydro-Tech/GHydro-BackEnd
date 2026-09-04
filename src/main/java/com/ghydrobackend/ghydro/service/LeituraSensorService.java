@@ -1,10 +1,10 @@
 package com.ghydrobackend.ghydro.service;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.LeituraSensor;
 import com.ghydrobackend.ghydro.model.Sensor;
 import com.ghydrobackend.ghydro.repository.LeituraSensorRepository;
 import com.ghydrobackend.ghydro.repository.SensorRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,7 @@ public class LeituraSensorService {
 
     public LeituraSensor buscarPorId(Long id) {
         return leituraRepository.findById(id)
-                .orElseThrow(() -> new RegraDeNegocioException("Leitura de sensor não encontrada com o ID: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Leitura de sensor não encontrada com o ID: " + id));
     }
 
     @Transactional
@@ -41,7 +41,7 @@ public class LeituraSensorService {
         if (leituraRepository.existsBySensorIdAndTimestamp(
                 leitura.getSensor().getId(),
                 leitura.getTimestamp())) {
-            throw new RegraDeNegocioException("Já existe uma leitura registrada para este sensor neste exato momento.");
+            throw new IllegalArgumentException("Já existe uma leitura registrada para este sensor neste exato momento.");
         }
 
         return leituraRepository.save(leitura);
@@ -70,7 +70,7 @@ public class LeituraSensorService {
 
     public void deletarLeituraSensor(Long id) {
         if (!leituraRepository.existsById(id)) {
-            throw new RegraDeNegocioException("Leitura não encontrada para exclusão.");
+            throw new EntityNotFoundException("Leitura não encontrada para exclusão.");
         }
         leituraRepository.deleteById(id);
     }
@@ -79,23 +79,23 @@ public class LeituraSensorService {
 
     private void validarCamposObrigatorios(LeituraSensor l) {
         if (l.getTimestamp() == null) {
-            throw new RegraDeNegocioException("O timestamp (data/hora) da leitura é obrigatório.");
+            throw new IllegalArgumentException("O timestamp (data/hora) da leitura é obrigatório.");
         }
         if (l.getTimestamp().isAfter(LocalDateTime.now())) {
-            throw new RegraDeNegocioException("A data da leitura não pode ser no futuro.");
+            throw new IllegalArgumentException("A data da leitura não pode ser no futuro.");
         }
         if (l.getUnidadeMedida() == null) {
-            throw new RegraDeNegocioException("A unidade de medida é obrigatória.");
+            throw new IllegalArgumentException("A unidade de medida é obrigatória.");
         }
     }
 
     private void carregarSensor(LeituraSensor l) {
         if (l.getSensor() == null || l.getSensor().getId() == null) {
-            throw new RegraDeNegocioException("É obrigatório informar o Sensor.");
+            throw new IllegalArgumentException("É obrigatório informar o Sensor.");
         }
 
         Sensor sensor = sensorRepository.findById(l.getSensor().getId())
-                .orElseThrow(() -> new RegraDeNegocioException("O Sensor informado não existe."));
+                .orElseThrow(() -> new EntityNotFoundException("O Sensor informado não existe."));
 
         l.setSensor(sensor);
     }
