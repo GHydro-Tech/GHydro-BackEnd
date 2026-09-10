@@ -6,6 +6,7 @@ import com.ghydrobackend.ghydro.service.DispositivoIrrigacaoService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class DispositivoIrrigacaoController {
     private DispositivoIrrigacaoService dispositivoIrrigacaoService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public DispositivoIrrigacao salvarDispositivoIrrigacao(@RequestBody DispositivoIrrigacao dispositivoIrrigacao){
         return dispositivoIrrigacaoService.salvarDispositivoIrrigacao(dispositivoIrrigacao);
     }
@@ -35,12 +37,14 @@ public class DispositivoIrrigacaoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public DispositivoIrrigacao atualizarDispositivoIrrigacao(@PathVariable Long id, @RequestBody DispositivoIrrigacao dispositivoIrrigacao) {
         // Agora passamos o ID da URL e o Objeto do Body para a Service
         return dispositivoIrrigacaoService.atualizarDispositivoIrrigacao(id, dispositivoIrrigacao);
     }
 
     @DeleteMapping("/{id}/")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public void deletarDispositivoIrrigacao(@PathVariable Long id){
         dispositivoIrrigacaoService.deletarDispositivoIrrigacao(id);
     }

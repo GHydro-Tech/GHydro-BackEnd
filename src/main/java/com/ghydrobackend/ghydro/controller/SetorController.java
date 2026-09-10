@@ -7,6 +7,7 @@ import com.ghydrobackend.ghydro.service.SetorService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ public class SetorController {
     private SetorService setorService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public Setor salvarSetor(@RequestBody Setor setor){
         return setorService.salvarSetor(setor);
     }
@@ -36,12 +38,14 @@ public class SetorController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public Setor atualizarSetor(@PathVariable Long id, @RequestBody Setor setor) {
         // Agora passamos o ID da URL e o Objeto do Body para a Service
         return setorService.atualizarSetor(id, setor);
     }
 
     @DeleteMapping("/{id}/")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public void deletarSetor(@PathVariable Long id){
         setorService.deletarSetor(id);
     }

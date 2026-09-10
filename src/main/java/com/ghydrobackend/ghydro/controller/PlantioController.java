@@ -6,6 +6,7 @@ import com.ghydrobackend.ghydro.service.PlantioService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class PlantioController {
     private PlantioService plantioService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public Plantio salvarPlantio(@RequestBody Plantio plantio){
         return plantioService.salvarPlantio(plantio);
     }
@@ -35,12 +37,14 @@ public class PlantioController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public Plantio atualizarPlantio(@PathVariable Long id, @RequestBody Plantio plantio) {
         // Agora passamos o ID da URL e o Objeto do Body para a Service
         return plantioService.atualizarPlantio(id, plantio);
     }
 
     @DeleteMapping("/{id}/")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public void deletarPlantio(@PathVariable Long id){
         plantioService.deletarPlantio(id);
     }
