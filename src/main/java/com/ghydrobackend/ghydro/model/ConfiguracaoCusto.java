@@ -1,6 +1,5 @@
 package com.ghydrobackend.ghydro.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ghydrobackend.ghydro.model.enums.Moeda;
 
 import jakarta.persistence.Column;

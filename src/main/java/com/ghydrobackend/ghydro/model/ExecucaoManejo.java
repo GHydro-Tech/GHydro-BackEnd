@@ -35,7 +35,7 @@ public class ExecucaoManejo {
     @JoinColumn(name = "plantio_id")
     private Plantio plantio;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "recomendacao_id", nullable = true)
     private Recomendacao recomendacao;
     

@@ -10,6 +10,7 @@ import com.ghydrobackend.ghydro.model.enums.TipoSensor;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -37,6 +38,8 @@ public class Sensor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ElementCollection 
+    @Enumerated(EnumType.STRING)
     private List<TipoSensor> tipos;
 
     @Enumerated(EnumType.STRING)

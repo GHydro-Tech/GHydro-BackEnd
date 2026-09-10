@@ -20,7 +20,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.ghydrobackend.ghydro.exception.RegraDeNegocioException;
 import com.ghydrobackend.ghydro.model.Sensor;
 import com.ghydrobackend.ghydro.model.Setor;
 import com.ghydrobackend.ghydro.model.enums.StatusSensor;
@@ -90,10 +89,10 @@ class SensorServiceTest {
         sensorValido.setNivelBateria(150.0); 
 
         // Ação & Verificação
-        RegraDeNegocioException erro = assertThrows(RegraDeNegocioException.class, () -> {
+        IllegalArgumentException erro = assertThrows(IllegalArgumentException.class, () -> {
             sensorService.salvarSensor(sensorValido);
         });
-
+        
         assertEquals("O nível de bateria deve estar entre 0 e 100.", erro.getMessage());
         verify(sensorRepository, never()).save(any());
     }

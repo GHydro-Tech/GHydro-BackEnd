@@ -43,10 +43,9 @@ public class Setor {
     @JoinColumn(name = "tipo_solo_id")
     private TipoSolo tipoSolo;
 
-    @ManyToOne
-    @JoinColumn(name = "dispositivo_id")
+    @OneToMany(mappedBy = "setor")
     @JsonIgnore
-    private DispositivoIrrigacao dispositivoIrrigacao;
+    private List<DispositivoIrrigacao> dispositivos = new ArrayList<>();
 
     @OneToMany(mappedBy = "setor")
     @JsonIgnore
