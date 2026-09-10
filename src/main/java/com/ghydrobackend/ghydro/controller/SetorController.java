@@ -27,7 +27,7 @@ public class SetorController {
     private SetorService setorService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_TECNICO')")
     public Setor salvarSetor(@RequestBody Setor setor){
         return setorService.salvarSetor(setor);
     }
@@ -38,14 +38,14 @@ public class SetorController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_TECNICO')")
     public Setor atualizarSetor(@PathVariable Long id, @RequestBody Setor setor) {
         // Agora passamos o ID da URL e o Objeto do Body para a Service
         return setorService.atualizarSetor(id, setor);
     }
 
     @DeleteMapping("/{id}/")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_TECNICO')")
     public void deletarSetor(@PathVariable Long id){
         setorService.deletarSetor(id);
     }
