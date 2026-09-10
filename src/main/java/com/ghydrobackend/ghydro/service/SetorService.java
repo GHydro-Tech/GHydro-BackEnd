@@ -3,14 +3,19 @@ package com.ghydrobackend.ghydro.service;
 import com.ghydrobackend.ghydro.model.Propriedade;
 import com.ghydrobackend.ghydro.model.Setor;
 import com.ghydrobackend.ghydro.model.TipoSolo;
+import com.ghydrobackend.ghydro.model.Usuario;
+import com.ghydrobackend.ghydro.model.enums.UserRole;
 import com.ghydrobackend.ghydro.repository.PropriedadeRepository;
 import com.ghydrobackend.ghydro.repository.SetorRepository;
 import com.ghydrobackend.ghydro.repository.TipoSoloRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -26,12 +31,36 @@ public class SetorService {
     private TipoSoloRepository tipoSoloRepository;
 
     public List<Setor> listarSetor() {
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (usuarioLogado.getRole() == UserRole.PRODUTOR) {
+            if (usuarioLogado.getProprietario() == null) {
+                return Collections.emptyList();
+            }
+            // Navega Setor -> Propriedade -> Proprietario
+            return setorRepository.findAllByPropriedadeProprietario(usuarioLogado.getProprietario());
+        }
+
         return setorRepository.findAll();
     }
 
     public Setor buscarPorId(Long id) {
-        return setorRepository.findById(id)
+        Setor setor = setorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Setor não encontrado com o ID: " + id));
+
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (usuarioLogado.getRole() == UserRole.PRODUTOR) {
+            Long idDonoDoSetor = setor.getPropriedade().getProprietario().getId();
+            
+            if (usuarioLogado.getProprietario() == null || 
+                !idDonoDoSetor.equals(usuarioLogado.getProprietario().getId())) {
+                
+                throw new AccessDeniedException("Acesso negado. Este setor pertence a outra fazenda.");
+            }
+        }
+
+        return setor;
     }
 
     @Transactional

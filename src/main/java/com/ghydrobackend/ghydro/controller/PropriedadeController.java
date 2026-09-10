@@ -6,6 +6,7 @@ import com.ghydrobackend.ghydro.service.PropriedadeService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class PropriedadeController {
     private PropriedadeService propriedadeService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public Propriedade salvarPropriedade(@RequestBody Propriedade propriedade){
         return propriedadeService.salvarPropriedade(propriedade);
     }
@@ -35,12 +37,14 @@ public class PropriedadeController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public Propriedade atualizarPropriedade(@PathVariable Long id, @RequestBody Propriedade propriedade) {
         // Agora passamos o ID da URL e o Objeto do Body para a Service
         return propriedadeService.atualizarPropriedade(id, propriedade);
     }
 
     @DeleteMapping("/{id}/")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public void deletarPropriedade(@PathVariable Long id){
         propriedadeService.deletarPropriedade(id);
     }

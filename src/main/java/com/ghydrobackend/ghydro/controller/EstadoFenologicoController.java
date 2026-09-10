@@ -6,6 +6,7 @@ import com.ghydrobackend.ghydro.service.EstadoFenologicoService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class EstadoFenologicoController {
     private EstadoFenologicoService estadoFenologicoService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public EstadoFenologico salvarEstadoFenologico(@RequestBody EstadoFenologico estadoFenologico){
         return estadoFenologicoService.salvarEstadoFenologico(estadoFenologico);
     }
@@ -35,6 +37,7 @@ public class EstadoFenologicoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public EstadoFenologico atualizarEstadoFenologico(@PathVariable Long id, @RequestBody EstadoFenologico estadoFenologico) {
         // Agora passamos o ID da URL e o Objeto do Body para a Service
         return estadoFenologicoService.atualizarEstadoFenologico(id, estadoFenologico);
@@ -42,6 +45,7 @@ public class EstadoFenologicoController {
 
 
     @DeleteMapping("/{id}/")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public void deletarEstadoFenologico(@PathVariable Long id){
         estadoFenologicoService.deletarEstadoFenologico(id);
     }

@@ -6,6 +6,7 @@ import com.ghydrobackend.ghydro.service.SensorService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class SensorController {
     private SensorService sensorService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public Sensor salvarSensor(@RequestBody Sensor sensor){
         return sensorService.salvarSensor(sensor);
     }
@@ -35,12 +37,14 @@ public class SensorController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public Sensor atualizarSensor(@PathVariable Long id, @RequestBody Sensor sensor) {
         // Agora passamos o ID da URL e o Objeto do Body para a Service
         return sensorService.atualizarSensor(id, sensor);
     }
 
     @DeleteMapping("/{id}/")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public void deletarSensor(@PathVariable Long id){
         sensorService.deletarSensor(id);
     }

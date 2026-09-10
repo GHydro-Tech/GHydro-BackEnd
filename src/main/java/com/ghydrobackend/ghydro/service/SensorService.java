@@ -2,14 +2,19 @@ package com.ghydrobackend.ghydro.service;
 
 import com.ghydrobackend.ghydro.model.Sensor;
 import com.ghydrobackend.ghydro.model.Setor;
+import com.ghydrobackend.ghydro.model.Usuario;
+import com.ghydrobackend.ghydro.model.enums.UserRole;
 import com.ghydrobackend.ghydro.repository.SensorRepository;
 import com.ghydrobackend.ghydro.repository.SetorRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -22,12 +27,36 @@ public class SensorService {
     private SetorRepository setorRepository; // Necessário para validar e carregar o Setor
 
     public List<Sensor> listarSensor() {
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (usuarioLogado.getRole() == UserRole.PRODUTOR) {
+            if (usuarioLogado.getProprietario() == null) {
+                return Collections.emptyList();
+            }
+            // Navega Sensor -> Setor -> Propriedade -> Proprietario
+            return sensorRepository.findAllBySetorPropriedadeProprietario(usuarioLogado.getProprietario());
+        }
+
         return sensorRepository.findAll();
     }
 
     public Sensor buscarPorId(Long id) {
-        return sensorRepository.findById(id)
+        Sensor sensor = sensorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Sensor não encontrado com o ID: " + id));
+
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (usuarioLogado.getRole() == UserRole.PRODUTOR) {
+            Long idDonoDoSensor = sensor.getSetor().getPropriedade().getProprietario().getId();
+            
+            if (usuarioLogado.getProprietario() == null || 
+                !idDonoDoSensor.equals(usuarioLogado.getProprietario().getId())) {
+                
+                throw new AccessDeniedException("Acesso negado. Este sensor pertence a outra fazenda.");
+            }
+        }
+
+        return sensor;
     }
 
     @Transactional

@@ -6,6 +6,7 @@ import com.ghydrobackend.ghydro.service.EstacaoMetereologicaService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class EstacaoMetereologicaController {
     private EstacaoMetereologicaService estacaoMetereologicaService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public EstacaoMetereologica salvarEstacaoMetereologica(@RequestBody EstacaoMetereologica estacaoMetereologica){
         return estacaoMetereologicaService.salvarEstacaoMetereologica(estacaoMetereologica);
     }
@@ -35,11 +37,13 @@ public class EstacaoMetereologicaController {
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public EstacaoMetereologica atualizarEstacaoMetereologica(@RequestBody EstacaoMetereologica estacaoMetereologica){
         return estacaoMetereologicaService.atualizarEstacaoMetereologica(estacaoMetereologica);
     }
 
     @DeleteMapping("/{id}/")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public void deletarEstacaoMetereologica(@PathVariable Long id){
         estacaoMetereologicaService.deletarEstacaoMetereologica(id);
     }

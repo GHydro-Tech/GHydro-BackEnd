@@ -6,6 +6,7 @@ import com.ghydrobackend.ghydro.service.ConfiguracaoCustoService;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ public class ConfiguracaoCustoController {
     private ConfiguracaoCustoService configuracaoCustoService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public ConfiguracaoCusto salvarConfiguracaoCusto(@RequestBody ConfiguracaoCusto configuracaoCusto){
         return configuracaoCustoService.salvarConfiguracaoCusto(configuracaoCusto);
     }
@@ -35,11 +37,13 @@ public class ConfiguracaoCustoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public ConfiguracaoCusto atualizarConfiguracaoCusto(@PathVariable Long id, @RequestBody ConfiguracaoCusto configuracaoCusto) {
         return configuracaoCustoService.atualizarConfiguracaoCusto(id, configuracaoCusto);
     }
 
     @DeleteMapping("/{id}/")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
     public void deletarConfiguracaoCusto(@PathVariable Long id){
         configuracaoCustoService.deletarConfiguracaoCusto(id);
     }

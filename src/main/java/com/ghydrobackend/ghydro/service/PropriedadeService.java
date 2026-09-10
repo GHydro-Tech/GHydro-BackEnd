@@ -2,13 +2,18 @@ package com.ghydrobackend.ghydro.service;
 
 import com.ghydrobackend.ghydro.model.Propriedade;
 import com.ghydrobackend.ghydro.model.Proprietario;
+import com.ghydrobackend.ghydro.model.Usuario;
+import com.ghydrobackend.ghydro.model.enums.UserRole;
 import com.ghydrobackend.ghydro.repository.PropriedadeRepository;
 import com.ghydrobackend.ghydro.repository.ProprietarioRepository;
 import jakarta.persistence.EntityNotFoundException; // Use javax.persistence.* se estiver no Spring Boot 2.x
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -22,12 +27,44 @@ public class PropriedadeService {
 
 
     public List<Propriedade> listarPropriedade() {
+        // 1. Pega o usuário que está logado no momento
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        // 2. Verifica se a role é PRODUTOR
+        if (usuarioLogado.getRole() == UserRole.PRODUTOR) {
+            // Se for produtor, mas ainda não tem uma entidade Proprietario vinculada a ele, retorna lista vazia
+            if (usuarioLogado.getProprietario() == null) {
+                return Collections.emptyList();
+            }
+            // Retorna apenas as propriedades dele usando o método que já existe no seu repositório
+            return propriedadeRepository.findAllByProprietario(usuarioLogado.getProprietario());
+        }
+
+        // 3. Se for ADMIN ou TECNICO, retorna tudo
         return propriedadeRepository.findAll();
     }
 
     public Propriedade buscarPorId(Long id) {
-        return propriedadeRepository.findById(id)
+        // 1. Busca a propriedade normalmente no banco
+        Propriedade propriedade = propriedadeRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Propriedade não encontrada com o ID: " + id));
+
+        // 2. Pega o usuário logado
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        // 3. Verifica as permissões se for PRODUTOR
+        if (usuarioLogado.getRole() == UserRole.PRODUTOR) {
+            
+            // Se o usuário logado ainda não tem um Proprietario vinculado a ele, ou se o ID for diferente
+            if (usuarioLogado.getProprietario() == null || 
+                !propriedade.getProprietario().getId().equals(usuarioLogado.getProprietario().getId())) {
+                
+                // Dispara um erro 403 Forbidden
+                throw new AccessDeniedException("Acesso negado. Você não tem permissão para acessar esta propriedade.");
+            }
+        }
+
+        return propriedade;
     }
 
     @Transactional
