@@ -3,7 +3,9 @@ package com.ghydrobackend.ghydro.controller;
 import com.ghydrobackend.ghydro.dto.AuthenticationDTO;
 import com.ghydrobackend.ghydro.dto.LoginResponseDTO;
 import com.ghydrobackend.ghydro.dto.RegisterDTO;
+import com.ghydrobackend.ghydro.model.Proprietario;
 import com.ghydrobackend.ghydro.model.Usuario;
+import com.ghydrobackend.ghydro.repository.ProprietarioRepository;
 import com.ghydrobackend.ghydro.repository.UsuarioRepository;
 import com.ghydrobackend.ghydro.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class AuthController {
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private ProprietarioRepository proprietarioRepository;
+
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody AuthenticationDTO data) {
         // O Spring Security exige que a gente encapsule o email e a senha nesse token interno dele
@@ -43,17 +48,26 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegisterDTO data) {
-        // Verifica se já existe alguém com esse email
         if (this.repository.findByEmail(data.email()) != null) {
             return ResponseEntity.badRequest().body("Este email já está em uso.");
         }
 
-        // Criptografa a senha antes de salvar no banco
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.senha());
+        Proprietario proprietarioVinculado = null;
+
+        // Se for PRODUTOR, cria a entidade do arquivo Proprietario.java
+        if (data.role() == com.ghydrobackend.ghydro.model.enums.UserRole.PRODUTOR) {
+            Proprietario novoProprietario = new Proprietario();
+            
+            // Como não há obrigatoriedade, podemos colocar um nome padrão
+            // para não quebrar telas no Front-end que esperam uma String
+            novoProprietario.setNome("Produtor (Em Configuração)");
+            // novoProprietario.setCpf(null); // O CPF pode ficar nulo por enquanto
+            
+            proprietarioVinculado = this.proprietarioRepository.save(novoProprietario);
+        }
         
-        // Cria o usuário novo (null para o ID, que será gerado, e null para o Proprietário, por enquanto)
-        Usuario newUser = new Usuario(null, data.email(), encryptedPassword, data.role(), null);
-        
+        Usuario newUser = new Usuario(null, data.email(), encryptedPassword, data.role(), proprietarioVinculado);
         this.repository.save(newUser);
 
         return ResponseEntity.ok("Usuário cadastrado com sucesso!");
