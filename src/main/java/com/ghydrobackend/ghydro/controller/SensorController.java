@@ -26,7 +26,7 @@ public class SensorController {
     private SensorService sensorService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_TECNICO')")
     public Sensor salvarSensor(@RequestBody Sensor sensor){
         return sensorService.salvarSensor(sensor);
     }
@@ -37,14 +37,14 @@ public class SensorController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_TECNICO')")
     public Sensor atualizarSensor(@PathVariable Long id, @RequestBody Sensor sensor) {
         // Agora passamos o ID da URL e o Objeto do Body para a Service
         return sensorService.atualizarSensor(id, sensor);
     }
 
     @DeleteMapping("/{id}/")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_TECNICO')")
     public void deletarSensor(@PathVariable Long id){
         sensorService.deletarSensor(id);
     }

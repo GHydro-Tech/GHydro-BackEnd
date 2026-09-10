@@ -26,7 +26,7 @@ public class ConfiguracaoCustoController {
     private ConfiguracaoCustoService configuracaoCustoService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_TECNICO')")
     public ConfiguracaoCusto salvarConfiguracaoCusto(@RequestBody ConfiguracaoCusto configuracaoCusto){
         return configuracaoCustoService.salvarConfiguracaoCusto(configuracaoCusto);
     }
@@ -37,13 +37,13 @@ public class ConfiguracaoCustoController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_TECNICO')")
     public ConfiguracaoCusto atualizarConfiguracaoCusto(@PathVariable Long id, @RequestBody ConfiguracaoCusto configuracaoCusto) {
         return configuracaoCustoService.atualizarConfiguracaoCusto(id, configuracaoCusto);
     }
 
     @DeleteMapping("/{id}/")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TECNICO')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_TECNICO')")
     public void deletarConfiguracaoCusto(@PathVariable Long id){
         configuracaoCustoService.deletarConfiguracaoCusto(id);
     }
